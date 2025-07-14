@@ -1,0 +1,142 @@
+[
+  {
+    "title": "Loco Brake System Diagram",
+    "category": "Technical Knowledge",
+    "type": "image",
+    "file": "assets/images/brake-system.jpg",
+    "thumbnail": "assets/images/thumb-brake.jpg"
+  },
+  {
+    "title": "Safe Working Rule Book Part A",
+    "category": "Safe Working Rules",
+    "type": "pdf",
+    "file": "assets/pdfs/swr-part-a.pdf",
+    "thumbnail": "assets/images/thumb-swr.jpg"
+  },
+  {
+    "title": "Admin Circular 2024/01",
+    "category": "Official Administrative",
+    "type": "pdf",
+    "file": "assets/pdfs/admin-circular-2024.pdf",
+    "thumbnail": "assets/images/thumb-admin.jpg"
+  },
+  {
+    "title": "Finance Budget Summary",
+    "category": "Official Financial",
+    "type": "pdf",
+    "file": "assets/pdfs/finance-budget.pdf",
+    "thumbnail": "assets/images/thumb-finance.jpg"
+  },
+  {
+    "title": "Medical Fitness Form",
+    "category": "Railway Medical",
+    "type": "pdf",
+    "file": "assets/pdfs/medical-form.pdf",
+    "thumbnail": "assets/images/thumb-medical.jpg"
+  },
+  {
+    "title": "Leave Application Format",
+    "category": "Leave Related",
+    "type": "pdf",
+    "file": "assets/pdfs/leave-form.pdf",
+    "thumbnail": "assets/images/thumb-leave.jpg"
+  },
+  {
+    "title": "Signal Identification Chart",
+    "category": "Signal & Safety",
+    "type": "image",
+    "file": "assets/images/signals.jpg",
+    "thumbnail": "assets/images/thumb-signal.jpg"
+  },
+  {
+    "title": "Diesel Loco Wiring Diagram",
+    "category": "Diesel Loco",
+    "type": "pdf",
+    "file": "assets/pdfs/diesel-wiring.pdf",
+    "thumbnail": "assets/images/thumb-diesel.jpg"
+  },
+  {
+    "title": "Electric Loco Maintenance Log",
+    "category": "Electric Loco",
+    "type": "pdf",
+    "file": "assets/pdfs/electric-maintenance.pdf",
+    "thumbnail": "assets/images/thumb-electric.jpg"
+  },
+  {
+    "title": "Crew Lobby Instructions",
+    "category": "Crew Lobby Instructions",
+    "type": "pdf",
+    "file": "assets/pdfs/crew-lobby.pdf",
+    "thumbnail": "assets/images/thumb-crew.jpg"
+  },
+  {
+    "title": "Train Working Time Table",
+    "category": "Time Table",
+    "type": "pdf",
+    "file": "assets/pdfs/time-table.pdf",
+    "thumbnail": "assets/images/thumb-time.jpg"
+  },
+  {
+    "title": "Running Duty Hours Rules",
+    "category": "Duty Related",
+    "type": "pdf",
+    "file": "assets/pdfs/duty-hours.pdf",
+    "thumbnail": "assets/images/thumb-duty.jpg"
+  },
+  {
+    "title": "Accident Report Format",
+    "category": "Safety Reporting",
+    "type": "pdf",
+    "file": "assets/pdfs/accident-report.pdf",
+    "thumbnail": "assets/images/thumb-accident.jpg"
+  },
+  {
+    "title": "Speed Restriction Zones",
+    "category": "Zonal Orders",
+    "type": "pdf",
+    "file": "assets/pdfs/speed-zones.pdf",
+    "thumbnail": "assets/images/thumb-zones.jpg"
+  },
+  {
+    "title": "Overtime Calculation Sheet",
+    "category": "Wage & Overtime",
+    "type": "pdf",
+    "file": "assets/pdfs/overtime-sheet.pdf",
+    "thumbnail": "assets/images/thumb-overtime.jpg"
+  },
+  {
+    "title": "Holiday Calendar 2025",
+    "category": "Staff Calendar",
+    "type": "pdf",
+    "file": "assets/pdfs/holiday-2025.pdf",
+    "thumbnail": "assets/images/thumb-holiday.jpg"
+  },
+  {
+    "title": "Caution Order Format",
+    "category": "Operations",
+    "type": "pdf",
+    "file": "assets/pdfs/caution-order.pdf",
+    "thumbnail": "assets/images/thumb-caution.jpg"
+  },
+  {
+    "title": "Running Room Rules",
+    "category": "Running Room",
+    "type": "pdf",
+    "file": "assets/pdfs/running-room-rules.pdf",
+    "thumbnail": "assets/images/thumb-running.jpg"
+  },
+  {
+    "title": "Fuel Efficiency Chart",
+    "category": "Fuel Management",
+    "type": "pdf",
+    "file": "assets/pdfs/fuel-chart.pdf",
+    "thumbnail": "assets/images/thumb-fuel.jpg"
+  },
+  {
+    "title": "SMS Code List for Staff",
+    "category": "Communication",
+    "type": "pdf",
+    "file": "assets/pdfs/sms-codes.pdf",
+    "thumbnail": "assets/images/thumb-sms.jpg"
+  }
+]
