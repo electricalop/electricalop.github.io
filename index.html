@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Railway Crew Resource Hub</title>
   <script src="https://unpkg.com/vue@3"></script>
-  <script src="https://unpkg.com/vue-router@4"></script>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; font-family: Arial, sans-serif; background: #f5f5f5; }
@@ -111,51 +110,6 @@
     }
   </style>
 </head>
-
-<script>
-  const { createApp } = Vue;
-
-  createApp({
-    data() {
-      return {
-        documents: [],
-        selectedCategory: 'All',
-        searchText: ''
-      };
-    },
-    computed: {
-      categories() {
-        const all = this.documents.map(d => d.category);
-        return [...new Set(all)].sort();
-      },
-      filteredDocs() {
-        return this.documents.filter(doc => {
-          const matchesCategory = this.selectedCategory === 'All' || doc.category === this.selectedCategory;
-          const matchesSearch = doc.title.toLowerCase().includes(this.searchText.toLowerCase());
-          return matchesCategory && matchesSearch;
-        });
-      }
-    },
-    methods: {
-      selectCategory(cat) {
-        this.selectedCategory = cat;
-      },
-      async fetchDocs() {
-        try {
-          const res = await fetch('data/docs.json');
-          if (!res.ok) throw new Error("Failed to load JSON");
-          this.documents = await res.json();
-        } catch (err) {
-          console.error("Error loading docs.json:", err);
-        }
-      }
-    },
-    mounted() {
-      this.fetchDocs();
-    }
-  }).mount('#app');
-</script>
-  
 <body>
   <div id="app">
     <header>
@@ -188,3 +142,50 @@
       </section>
     </main>
   </div>
+
+  <!-- ✅ Vue App Code Placed After DOM -->
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          documents: [],
+          selectedCategory: 'All',
+          searchText: ''
+        };
+      },
+      computed: {
+        categories() {
+          const all = this.documents.map(d => d.category);
+          return [...new Set(all)].sort();
+        },
+        filteredDocs() {
+          return this.documents.filter(doc => {
+            const matchesCategory = this.selectedCategory === 'All' || doc.category === this.selectedCategory;
+            const matchesSearch = doc.title.toLowerCase().includes(this.searchText.toLowerCase());
+            return matchesCategory && matchesSearch;
+          });
+        }
+      },
+      methods: {
+        selectCategory(cat) {
+          this.selectedCategory = cat;
+        },
+        async fetchDocs() {
+          try {
+            const res = await fetch('data/docs.json');
+            if (!res.ok) throw new Error("Failed to load JSON");
+            this.documents = await res.json();
+          } catch (err) {
+            console.error("Error loading docs.json:", err);
+          }
+        }
+      },
+      mounted() {
+        this.fetchDocs();
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
