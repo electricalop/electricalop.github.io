@@ -1,181 +1,163 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Railway Crew Resource Hub</title>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; font-family: Arial, sans-serif; background: #f5f5f5; }
-    #app { display: flex; flex-direction: column; min-height: 100vh; }header {
-  background: #2e7d32;
-  color: white;
-  padding: 1rem;
-  text-align: center;
-}
-
-main {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-aside {
-  width: 250px;
-  background: #ffffff;
-  border-right: 1px solid #ddd;
-  padding: 1rem;
-  overflow-y: auto;
-}
-
-aside h3 { margin-top: 0; }
-
-aside ul {
-  list-style: none;
-  padding: 0;
-}
-
-aside li {
-  margin: 5px 0;
-  cursor: pointer;
-  padding: 5px 10px;
-  border-radius: 5px;
-  transition: background 0.2s;
-}
-
-aside li:hover,
-aside li.active {
-  background: #e0f2f1;
-}
-
-section {
-  flex: 1;
-  padding: 1rem;
-  overflow-y: auto;
-}
-
-.search {
-  margin-bottom: 1rem;
-  display: flex;
-}
-
-.search input {
-  flex: 1;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-.card {
-  background: white;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  display: flex;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  align-items: center;
-}
-
-.card img {
-  width: 80px;
-  height: 80px;
-  object-fit: cover;
-  border-radius: 6px;
-  margin-right: 1rem;
-}
-
-.card h4 {
-  margin: 0 0 5px 0;
-}
-
-.card a {
-  text-decoration: none;
-  color: #2e7d32;
-  font-weight: bold;
-}
-
-@media(max-width: 768px) {
-  main {
-    flex-direction: column;
-  }
-
-  aside {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid #ccc;
-  }
-}
-
+    #app { display: flex; flex-direction: column; min-height: 100vh; }
+    header {
+      background: #2e7d32;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    aside {
+      width: 250px;
+      background: #ffffff;
+      border-right: 1px solid #ddd;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+    aside h3 { margin-top: 0; }
+    aside ul {
+      list-style: none;
+      padding: 0;
+    }
+    aside li {
+      margin: 5px 0;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 5px;
+      transition: background 0.2s;
+    }
+    aside li:hover,
+    aside li.active {
+      background: #e0f2f1;
+    }
+    section {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+    .search {
+      margin-bottom: 1rem;
+      display: flex;
+    }
+    .search input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .card {
+      background: white;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      align-items: center;
+    }
+    .card img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-right: 1rem;
+    }
+    .card h4 {
+      margin: 0 0 5px 0;
+    }
+    .card a {
+      text-decoration: none;
+      color: #2e7d32;
+      font-weight: bold;
+    }
+    @media(max-width: 768px) {
+      main {
+        flex-direction: column;
+      }
+      aside {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #ccc;
+      }
+    }
   </style>
 </head>
 <body>
-  <div id="app">
-    <header>
-      <h1>Railway Crew Resource Hub</h1>
-    </header>
-    <main>
-      <aside>
-        <h3>File Types</h3>
-        <ul>
-          <li :class="{active: selectedCategory === 'All'}" @click="selectCategory('All')">All</li>
-          <li v-for="cat in categories" :key="cat" :class="{active: selectedCategory === cat}" @click="selectCategory(cat)">{{ cat }}</li>
-        </ul>
-      </aside>
-      <section>
-        <div class="search">
-          <input v-model="searchText" placeholder="Search files..." />
+<div id="app">
+  <header>
+    <h1>Railway Crew Resource Hub</h1>
+  </header>
+  <main>
+    <aside>
+      <h3>File Types</h3>
+      <ul>
+        <li :class="{active: selectedType === 'All'}" @click="selectType('All')">All</li>
+        <li v-for="t in fileTypes" :key="t" :class="{active: selectedType === t}" @click="selectType(t)">{{ t }}</li>
+      </ul>
+    </aside>
+    <section>
+      <div class="search">
+        <input v-model="searchText" placeholder="Search documents..." />
+      </div>
+      <div v-if="filteredDocs.length === 0">No documents found.</div>
+      <div v-for="doc in filteredDocs" :key="doc.title" class="card">
+        <img :src="doc.thumbnail" alt="Thumbnail" />
+        <div>
+          <h4>{{ doc.title }}</h4>
+          <a :href="doc.file" target="_blank">View / Download</a>
         </div>
-        <div v-if="filteredDocs.length === 0">No files found.</div>
-        <div v-for="doc in filteredDocs" :key="doc.file" class="card">
-          <img :src="doc.thumbnail" alt="Thumbnail" :id="doc.file"/>
-          <div>
-            <h4>{{ doc.title }}</h4>
-            <a :href="doc.path" target="_blank">View / Download</a>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>  <script>
-    const { createApp } = Vue;
-
-    createApp({
-      data() {
-        return {
-          files: [],
-          selectedCategory: 'All',
-          searchText: ''
-        };
-      },
-      computed: {
-        categories() {
-          return [...new Set(this.files.map(f => f.category))];
-        },
-        filteredDocs() {
-          return this.files.filter(f => {
-            const matchCategory = this.selectedCategory === 'All' || f.category === this.selectedCategory;
-            const matchSearch = f.title.toLowerCase().includes(this.searchText.toLowerCase());
-            return matchCategory && matchSearch;
-          });
-        }
-      },
-      methods: {
-        selectCategory(cat) {
-          this.selectedCategory = cat;
-        },
-        async scanAssets() {
-          const folders = [
-            { path: 'assets/pdfs/', type: 'PDF' },
-            { path: 'assets/images/', type: 'Image' },
-            { path: 'assets/videos/', type: 'Video' },
-            { path: 'assets/audios/', type: 'Audio' }
-          ];
-          const fileFetches = folders.map(async folder => {
-            try {
-              const res = await fetch(folder.path);
-              const text = await res.text();
-              const parser = new DOMParser().parseFromString(text, 'text/html');
-              const links = parser.querySelectorAll('a');
+      </div>
+    </section>
+  </main>
+</div>
+<script>
+const { createApp } = Vue;
+createApp({
+  data() {
+    return {
+      documents: [
+        { type: 'PDF', title: 'sample1.pdf', file: 'assets/pdfs/sample1.pdf', thumbnail: 'assets/images/thumb-pdf.jpg' },
+        { type: 'Image', title: 'sample2.jpg', file: 'assets/images/sample2.jpg', thumbnail: 'assets/images/sample2.jpg' },
+        { type: 'Audio', title: 'sample3.mp3', file: 'assets/audios/sample3.mp3', thumbnail: 'assets/images/thumb-audio.jpg' },
+        { type: 'Video', title: 'sample4.mp4', file: 'assets/videos/sample4.mp4', thumbnail: 'assets/images/thumb-video.jpg' }
+      ],
+      selectedType: 'All',
+      searchText: ''
+    };
+  },
+  computed: {
+    fileTypes() {
+      return [...new Set(this.documents.map(doc => doc.type))];
+    },
+    filteredDocs() {
+      return this.documents.filter(doc => {
+        const matchType = this.selectedType === 'All' || doc.type === this.selectedType;
+        const matchSearch = doc.title.toLowerCase().includes(this.searchText.toLowerCase());
+        return matchType && matchSearch;
+      });
+    }
+  },
+  methods: {
+    selectType(type) {
+      this.selectedType = type;
+    }
+  }
+}).mount('#app');
+</script>
+</body>
+</html>ySelectorAll('a');
               links.forEach(link => {
                 const fileName = link.getAttribute('href');
                 if (!fileName.endsWith('/')) {
