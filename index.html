@@ -5,209 +5,155 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Railway Crew Resource Hub</title>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
   <style>
-    * { box-sizing: border-box; }
     body { margin: 0; font-family: Arial, sans-serif; background: #f5f5f5; }
     #app { display: flex; flex-direction: column; min-height: 100vh; }
-    header {
-      background: #2e7d32;
-      color: white;
-      padding: 1rem;
-      text-align: center;
-    }
-    main {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-    }
+    header { background: #2e7d32; color: white; padding: 1rem; text-align: center; }
+    main { display: flex; flex: 1; overflow: hidden; }
     aside {
-      width: 250px;
-      background: #ffffff;
-      border-right: 1px solid #ddd;
-      padding: 1rem;
-      overflow-y: auto;
+      width: 250px; background: #fff; border-right: 1px solid #ddd; padding: 1rem; overflow-y: auto;
     }
-    aside h3 { margin-top: 0; }
-    aside ul {
-      list-style: none;
-      padding: 0;
-    }
-    aside li {
-      margin: 5px 0;
-      cursor: pointer;
-      padding: 5px 10px;
-      border-radius: 5px;
-      transition: background 0.2s;
-    }
-    aside li:hover,
-    aside li.active {
-      background: #e0f2f1;
-    }
-    section {
-      flex: 1;
-      padding: 1rem;
-      overflow-y: auto;
-    }
-    .search {
-      margin-bottom: 1rem;
-      display: flex;
-    }
-    .search input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
+    section { flex: 1; padding: 1rem; overflow-y: auto; }
     .card {
-      background: white;
-      padding: 1rem;
-      margin-bottom: 1rem;
-      display: flex;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      align-items: center;
+      background: white; padding: 1rem; margin-bottom: 1rem; display: flex;
+      border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); align-items: center;
     }
     .card img {
-      width: 80px;
-      height: 80px;
-      object-fit: cover;
-      border-radius: 6px;
-      margin-right: 1rem;
+      width: 80px; height: 80px; object-fit: cover; border-radius: 6px; margin-right: 1rem;
     }
-    .card h4 {
-      margin: 0 0 5px 0;
-    }
+    .card h4 { margin: 0 0 5px 0; }
     .card a {
-      text-decoration: none;
-      color: #2e7d32;
-      font-weight: bold;
+      text-decoration: none; color: #2e7d32; font-weight: bold;
+    }
+    .search input {
+      width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;
+      margin-bottom: 1rem;
     }
     @media(max-width: 768px) {
-      main {
-        flex-direction: column;
-      }
-      aside {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid #ccc;
-      }
+      main { flex-direction: column; }
+      aside { width: 100%; border-right: none; border-bottom: 1px solid #ccc; }
     }
   </style>
 </head>
 <body>
-<div id="app">
-  <header>
-    <h1>Railway Crew Resource Hub</h1>
-  </header>
-  <main>
-    <aside>
-      <h3>File Types</h3>
-      <ul>
-        <li :class="{active: selectedType === 'All'}" @click="selectType('All')">All</li>
-        <li v-for="t in fileTypes" :key="t" :class="{active: selectedType === t}" @click="selectType(t)">{{ t }}</li>
-      </ul>
-    </aside>
-    <section>
-      <div class="search">
-        <input v-model="searchText" placeholder="Search documents..." />
-      </div>
-      <div v-if="filteredDocs.length === 0">No documents found.</div>
-      <div v-for="doc in filteredDocs" :key="doc.title" class="card">
-        <img :src="doc.thumbnail" alt="Thumbnail" />
-        <div>
-          <h4>{{ doc.title }}</h4>
-          <a :href="doc.file" target="_blank">View / Download</a>
+  <div id="app">
+    <header>
+      <h1>Railway Crew Resource Hub</h1>
+    </header>
+    <main>
+      <aside>
+        <h3>File Types</h3>
+        <ul>
+          <li :class="{active: selectedType === 'All'}" @click="selectedType = 'All'">All</li>
+          <li v-for="t in fileTypes" :key="t" :class="{active: selectedType === t}" @click="selectedType = t">{{ t }}</li>
+        </ul>
+      </aside>
+      <section>
+        <input v-model="searchText" placeholder="Search files..." />
+        <div v-if="filteredFiles.length === 0">No documents found.</div>
+        <div v-for="file in filteredFiles" :key="file.file" class="card">
+          <img :id="file.file" :src="file.thumbnail" alt="Thumbnail" />
+          <div>
+            <h4>{{ file.title }}</h4>
+            <a :href="file.file" target="_blank">View / Download</a>
+          </div>
         </div>
-      </div>
-    </section>
-  </main>
-</div>
-<script>
-const { createApp } = Vue;
-createApp({
-  data() {
-    return {
-      documents: [
-        { type: 'PDF', title: 'sample1.pdf', file: 'assets/pdfs/sample1.pdf', thumbnail: 'assets/images/thumb-pdf.jpg' },
-        { type: 'Image', title: 'sample2.jpg', file: 'assets/images/sample2.jpg', thumbnail: 'assets/images/sample2.jpg' },
-        { type: 'Audio', title: 'sample3.mp3', file: 'assets/audios/sample3.mp3', thumbnail: 'assets/images/thumb-audio.jpg' },
-        { type: 'Video', title: 'sample4.mp4', file: 'assets/videos/sample4.mp4', thumbnail: 'assets/images/thumb-video.jpg' }
-      ],
-      selectedType: 'All',
-      searchText: ''
-    };
-  },
-  computed: {
-    fileTypes() {
-      return [...new Set(this.documents.map(doc => doc.type))];
-    },
-    filteredDocs() {
-      return this.documents.filter(doc => {
-        const matchType = this.selectedType === 'All' || doc.type === this.selectedType;
-        const matchSearch = doc.title.toLowerCase().includes(this.searchText.toLowerCase());
-        return matchType && matchSearch;
-      });
-    }
-  },
-  methods: {
-    selectType(type) {
-      this.selectedType = type;
-    }
-  }
-}).mount('#app');
-</script>
-</body>
-</html>ySelectorAll('a');
-              links.forEach(link => {
-                const fileName = link.getAttribute('href');
-                if (!fileName.endsWith('/')) {
-                  const fullPath = folder.path + fileName;
-                  const type = folder.type;
-                  const category = type;
-                  let thumb = '';
-                  if (type === 'PDF') {
-                    thumb = '';
-                    this.generatePDFThumbnail(fullPath);
-                  } else if (type === 'Image') {
-                    thumb = fullPath;
-                  } else if (type === 'Video') {
-                    thumb = 'assets/images/thumb-video.jpg';
-                  } else if (type === 'Audio') {
-                    thumb = 'assets/images/thumb-audio.jpg';
-                  }
-                  this.files.push({
-                    title: fileName,
-                    file: fileName,
-                    path: fullPath,
-                    category: category,
-                    thumbnail: thumb
-                  });
-                }
-              });
-            } catch (e) {
-              console.error('Error loading folder', folder.path, e);
-            }
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          files: [],
+          selectedType: 'All',
+          searchText: ''
+        };
+      },
+      computed: {
+        fileTypes() {
+          return [...new Set(this.files.map(f => f.type))];
+        },
+        filteredFiles() {
+          return this.files.filter(f => {
+            const matchType = this.selectedType === 'All' || f.type === this.selectedType;
+            const matchSearch = f.title.toLowerCase().includes(this.searchText.toLowerCase());
+            return matchType && matchSearch;
           });
-          await Promise.all(fileFetches);
+        }
+      },
+      methods: {
+        async scanAssets() {
+          const folders = [
+            { path: 'assets/pdfs/', type: 'PDF' },
+            { path: 'assets/images/', type: 'Image' },
+            { path: 'assets/audios/', type: 'Audio' },
+            { path: 'assets/videos/', type: 'Video' }
+          ];
+
+          for (const folder of folders) {
+            try {
+              const res = await fetch(folder.path);
+              const text = await res.text();
+              const parser = new DOMParser();
+              const html = parser.parseFromString(text, 'text/html');
+              const links = html.querySelectorAll('a');
+
+              links.forEach(link => {
+                const name = link.getAttribute('href');
+                if (!name || name === '../') return;
+
+                const fullPath = folder.path + name;
+                const type = folder.type;
+                const title = decodeURIComponent(name);
+                let thumb = '';
+
+                if (type === 'PDF') {
+                  thumb = ''; // placeholder
+                  this.generatePDFThumbnail(fullPath);
+                } else if (type === 'Image') {
+                  thumb = fullPath;
+                } else if (type === 'Audio') {
+                  thumb = 'assets/images/thumb-audio.jpg';
+                } else if (type === 'Video') {
+                  thumb = 'assets/images/thumb-video.jpg';
+                }
+
+                this.files.push({ title, file: fullPath, type, thumbnail: thumb });
+              });
+            } catch (err) {
+              console.error('Error loading', folder.path, err);
+            }
+          }
         },
         async generatePDFThumbnail(pdfUrl) {
-          const loadingTask = pdfjsLib.getDocument(pdfUrl);
-          const pdf = await loadingTask.promise;
-          const page = await pdf.getPage(1);
-          const viewport = page.getViewport({ scale: 0.3 });
-          const canvas = document.createElement('canvas');
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          const ctx = canvas.getContext('2d');
-          await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-          const dataUrl = canvas.toDataURL();
-          const imgTag = document.getElementById(pdfUrl);
-          if (imgTag) imgTag.src = dataUrl;
+          try {
+            const loadingTask = pdfjsLib.getDocument(pdfUrl);
+            const pdf = await loadingTask.promise;
+            const page = await pdf.getPage(1);
+            const scale = 0.3;
+            const viewport = page.getViewport({ scale });
+            const canvas = document.createElement('canvas');
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+            const ctx = canvas.getContext('2d');
+            await page.render({ canvasContext: ctx, viewport }).promise;
+            const dataUrl = canvas.toDataURL();
+            const imgTag = document.getElementById(pdfUrl);
+            if (imgTag) imgTag.src = dataUrl;
+          } catch (e) {
+            console.warn('PDF render error for', pdfUrl);
+          }
         }
       },
       mounted() {
         this.scanAssets();
       }
     }).mount('#app');
-  </script></body>
+  </script>
+</body>
 </html>
