@@ -2,109 +2,204 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Railway Crew Resource Hub</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://unpkg.com/vue@3"></script>
   <style>
-    body { font-family: sans-serif; background: #f4f4f4; margin: 0; }
-    header { background: #2e7d32; color: white; padding: 1rem; text-align: center; }
-    main { padding: 1rem; }
-    .filters { margin-bottom: 1rem; }
-    .filters button {
-      margin-right: 8px; padding: 6px 12px; border: none;
-      background: #eee; border-radius: 5px; cursor: pointer;
+    body { margin: 0; font-family: Arial, sans-serif; background: #f5f5f5; }
+    #app { display: flex; flex-direction: column; min-height: 100vh; }
+
+    header {
+      background: #2e7d32;
+      color: white;
+      padding: 1rem;
+      text-align: center;
     }
-    .filters button.active { background: #2e7d32; color: white; }
-    .grid { display: flex; flex-wrap: wrap; gap: 1rem; }
+
+    main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    aside {
+      width: 250px;
+      background: #fff;
+      border-right: 1px solid #ddd;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+
+    aside ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    aside li {
+      margin: 6px 0;
+      padding: 6px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    aside li:hover, aside li.active {
+      background-color: #e0f2f1;
+    }
+
+    section {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+
+    .search input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
     .card {
-      width: 200px; background: white; border-radius: 8px; padding: 0.5rem;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center;
+      background: white;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
-    .card img { width: 100%; height: 140px; object-fit: cover; border-radius: 6px; }
-    .card h4 { font-size: 14px; margin: 0.5rem 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .card a { text-decoration: none; color: #2e7d32; font-weight: bold; font-size: 14px; }
-    input { width: 100%; padding: 8px; margin-bottom: 1rem; border-radius: 6px; border: 1px solid #ccc; }
+
+    .card img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-right: 1rem;
+    }
+
+    .card h4 {
+      margin: 0 0 5px 0;
+    }
+
+    .card a {
+      color: #2e7d32;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      main {
+        flex-direction: column;
+      }
+
+      aside {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+      }
+    }
   </style>
 </head>
 <body>
   <div id="app">
-    <header><h1>Railway Crew Resource Hub</h1></header>
+    <header>
+      <h1>Railway Crew Resource Hub</h1>
+    </header>
     <main>
-      <input v-model="search" placeholder="Search files..." />
-
-      <div class="filters">
-        <button :class="{active: filter === 'All'}" @click="filter = 'All'">All</button>
-        <button v-for="t in types" :key="t" :class="{active: filter === t}" @click="filter = t">{{ t }}</button>
-      </div>
-
-      <div class="grid">
-        <div class="card" v-for="f in filteredFiles" :key="f.file">
-          <img :src="f.thumbnail" :alt="f.title" />
-          <h4>{{ f.title }}</h4>
-          <a :href="f.file" target="_blank">View / Download</a>
+      <aside>
+        <h3>File Types</h3>
+        <ul>
+          <li :class="{active: selectedCategory === 'All'}" @click="selectCategory('All')">All</li>
+          <li v-for="cat in categories" :key="cat"
+              :class="{active: selectedCategory === cat}"
+              @click="selectCategory(cat)">
+            {{ cat.charAt(0).toUpperCase() + cat.slice(1) }}
+          </li>
+        </ul>
+      </aside>
+      <section>
+        <input v-model="searchText" placeholder="Search files..." />
+        <div v-if="filteredFiles.length === 0">No files found.</div>
+        <div v-for="file in filteredFiles" :key="file.file" class="card">
+          <img :src="file.thumbnail" alt="Thumbnail" />
+          <div>
+            <h4>{{ file.title }}</h4>
+            <a :href="file.file" target="_blank">View / Download {{ file.type.toUpperCase() }}</a>
+          </div>
         </div>
-      </div>
+      </section>
     </main>
   </div>
 
+  <!-- Vue Script -->
   <script>
     const { createApp } = Vue;
 
     createApp({
       data() {
         return {
-          search: '',
-          filter: 'All',
           files: [],
-          types: ['PDF', 'Image', 'Audio', 'Video']
+          selectedCategory: 'All',
+          searchText: ''
         };
       },
       computed: {
+        categories() {
+          return [...new Set(this.files.map(f => f.category))].sort();
+        },
         filteredFiles() {
           return this.files.filter(f => {
-            const matchType = this.filter === 'All' || f.type === this.filter;
-            const matchSearch = f.title.toLowerCase().includes(this.search.toLowerCase());
-            return matchType && matchSearch;
+            const matchCat = this.selectedCategory === 'All' || f.category === this.selectedCategory;
+            const matchText = f.title.toLowerCase().includes(this.searchText.toLowerCase());
+            return matchCat && matchText;
           });
         }
       },
       methods: {
-        async fetchFiles() {
+        selectCategory(cat) {
+          this.selectedCategory = cat;
+        },
+        async scanAssets() {
           const folders = [
-            { folder: 'pdfs', type: 'PDF', thumb: 'assets/images/thumb-pdf.jpg' },
-            { folder: 'images', type: 'Image', thumb: null },
-            { folder: 'audios', type: 'Audio', thumb: 'assets/images/thumb-audio.jpg' },
-            { folder: 'videos', type: 'Video', thumb: 'assets/images/thumb-video.jpg' }
+            { path: 'assets/pdfs/', type: 'pdf', thumb: 'assets/images/thumb-pdf.jpg' },
+            { path: 'assets/images/', type: 'image', thumb: null },
+            { path: 'assets/audios/', type: 'audio', thumb: 'assets/images/thumb-audio.jpg' },
+            { path: 'assets/videos/', type: 'video', thumb: 'assets/images/thumb-video.jpg' }
           ];
 
-          for (const f of folders) {
+          const fileFetches = folders.map(async folder => {
             try {
-              const res = await fetch(`assets/${f.folder}/`);
+              const res = await fetch(folder.path);
               const text = await res.text();
-              const dom = new DOMParser().parseFromString(text, 'text/html');
-              const links = [...dom.querySelectorAll('a')];
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(text, 'text/html');
+              const links = [...doc.querySelectorAll('a')];
 
               links.forEach(link => {
                 const name = link.getAttribute('href');
                 if (name && !name.endsWith('/')) {
-                  const filePath = `assets/${f.folder}/${name}`;
-                  const thumb = f.thumb ?? filePath; // image files use themselves
+                  const filePath = folder.path + name;
+                  const thumb = folder.type === 'image' ? filePath : folder.thumb;
                   this.files.push({
                     title: name,
                     file: filePath,
-                    type: f.type,
+                    category: folder.type,
+                    type: folder.type,
                     thumbnail: thumb
                   });
                 }
               });
             } catch (err) {
-              console.error(`Error loading ${f.folder}:`, err);
+              console.error(`Could not read ${folder.path}`, err);
             }
-          }
+          });
+
+          await Promise.all(fileFetches);
         }
       },
       mounted() {
-        this.fetchFiles();
+        this.scanAssets();
       }
     }).mount('#app');
   </script>
