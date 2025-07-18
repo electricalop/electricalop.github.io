@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Railway Crew Resource Hub</title>
   <script src="https://unpkg.com/vue@3"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    // Configure PDF.js worker
+    window['pdfjs-dist/build/pdf'] = pdfjsLib;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  </script>
+  <script src="js/pdf-thumbnail.js"></script>
   <style>
     body { margin: 0; font-family: Arial, sans-serif; background: #f5f5f5; }
     #app { display: flex; flex-direction: column; min-height: 100vh; }
@@ -70,6 +77,22 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     }
 
+    .thumbnail-container {
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      background: #f5f5f5;
+      border-radius: 6px;
+    }
+
+    .loading-thumbnail {
+      font-size: 12px;
+      color: #666;
+    }
+
     .card img {
       width: 80px;
       height: 80px;
@@ -122,7 +145,14 @@
         <input v-model="searchText" placeholder="Search files..." />
         <div v-if="filteredFiles.length === 0">No files found.</div>
         <div v-for="file in filteredFiles" :key="file.file" class="card">
-          <img :src="file.thumbnail" alt="Thumbnail" />
+          <div class="thumbnail-container">
+            <img v-if="file.type !== 'pdf'" :src="file.thumbnail" alt="Thumbnail" />
+            <template v-else>
+              <img v-if="file.pdfThumbnail" :src="file.pdfThumbnail" alt="PDF Thumbnail" />
+              <img v-else-if="!file.loadingThumbnail" :src="file.thumbnail" alt="Default Thumbnail" @error="loadPDFThumbnail(file)" />
+              <div v-else class="loading-thumbnail">Loading...</div>
+            </template>
+          </div>
           <div>
             <h4>{{ file.title }}</h4>
             <a :href="file.file" target="_blank">View / Download {{ file.type.toUpperCase() }}</a>
@@ -160,46 +190,32 @@
         selectCategory(cat) {
           this.selectedCategory = cat;
         },
-        async scanAssets() {
-          const folders = [
-            { path: 'assets/pdfs/', type: 'pdf', thumb: 'assets/images/thumb-pdf.jpg' },
-            { path: 'assets/images/', type: 'image', thumb: null },
-            { path: 'assets/audios/', type: 'audio', thumb: 'assets/images/thumb-audio.jpg' },
-            { path: 'assets/videos/', type: 'video', thumb: 'assets/images/thumb-video.jpg' }
-          ];
-
-          const fileFetches = folders.map(async folder => {
+        async loadFiles() {
+          try {
+            const response = await fetch('data/docs.json');
+            this.files = await response.json();
+          } catch (err) {
+            console.error('Could not load docs.json:', err);
+          }
+        },
+        async loadPDFThumbnail(file) {
+          if (file.type === 'pdf' && !file.pdfThumbnail && !file.loadingThumbnail) {
+            file.loadingThumbnail = true;
             try {
-              const res = await fetch(folder.path);
-              const text = await res.text();
-              const parser = new DOMParser();
-              const doc = parser.parseFromString(text, 'text/html');
-              const links = [...doc.querySelectorAll('a')];
-
-              links.forEach(link => {
-                const name = link.getAttribute('href');
-                if (name && !name.endsWith('/')) {
-                  const filePath = folder.path + name;
-                  const thumb = folder.type === 'image' ? filePath : folder.thumb;
-                  this.files.push({
-                    title: name,
-                    file: filePath,
-                    category: folder.type,
-                    type: folder.type,
-                    thumbnail: thumb
-                  });
-                }
-              });
-            } catch (err) {
-              console.error(`Could not read ${folder.path}`, err);
+              const thumbnail = await generatePDFThumbnail(file.file);
+              if (thumbnail) {
+                file.pdfThumbnail = thumbnail;
+              }
+            } catch (error) {
+              console.error('Failed to load PDF thumbnail:', error);
+            } finally {
+              file.loadingThumbnail = false;
             }
-          });
-
-          await Promise.all(fileFetches);
+          }
         }
       },
       mounted() {
-        this.scanAssets();
+        this.loadFiles();
       }
     }).mount('#app');
   </script>
