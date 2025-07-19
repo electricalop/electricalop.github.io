@@ -237,78 +237,28 @@
       min-height: 500px;
     }
 
-    .pdf-viewer-container {
+    .fallback-options {
+      padding: 2rem;
+      text-align: center;
+      background: #f9f9f9;
+      border-radius: 8px;
+      margin: 1rem;
+    }
+
+    .fallback-options h4 {
+      margin-bottom: 1rem;
+      color: #333;
+    }
+
+    .fallback-options .btn {
+      margin: 0.5rem;
+      min-width: 120px;
+    }
+
+    .google-viewer {
       width: 100%;
       height: 80vh;
-      display: flex;
-      flex-direction: column;
-      background: #f0f0f0;
-      overflow: hidden;
-    }
-
-    .pdf-controls {
-      padding: 10px;
-      background: #fff;
-      border-bottom: 1px solid #ddd;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-shrink: 0;
-    }
-
-    .pdf-canvas-container {
-      flex: 1;
-      overflow: auto;
-      background: #f0f0f0;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-    }
-
-    .pdf-canvas {
-      max-width: 100%;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      background: white;
-    }
-
-    .pdf-loading {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100%;
-      font-size: 18px;
-      color: #666;
-    }
-
-    .control-btn {
-      padding: 5px 10px;
-      background: #2e7d32;
-      color: white;
       border: none;
-      border-radius: 3px;
-      cursor: pointer;
-    }
-
-    .control-btn:hover {
-      background: #1b5e20;
-    }
-
-    .control-btn:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-
-    .page-info {
-      font-size: 14px;
-      color: #666;
-    }
-
-    .zoom-control {
-      padding: 5px;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      width: 80px;
     }
 
     /* Hidden download link */
@@ -341,11 +291,7 @@
         max-height: 98vh;
       }
 
-      .modal-pdf {
-        height: 70vh;
-      }
-
-      .pdf-viewer-container {
+      .modal-pdf, .google-viewer {
         height: 70vh;
       }
     }
@@ -421,29 +367,39 @@
           <button class="close-btn" @click="closeModal">&times;</button>
         </div>
         <div class="modal-body">
-          <!-- PDF Viewer -->
-          <div v-if="viewingFile.type === 'pdf'" class="pdf-viewer-container">
-            <div v-if="pdfLoading" class="pdf-loading">
-              Loading PDF...
+          <!-- PDF Viewer with Fallback Options -->
+          <div v-if="viewingFile.type === 'pdf'">
+            <!-- Try Google Docs Viewer first (works better on mobile) -->
+            <iframe 
+              v-if="useGoogleViewer"
+              :src="getGoogleViewerUrl(viewingFile.file)"
+              class="google-viewer"
+              frameborder="0"
+              @error="handleGoogleViewerError"
+            ></iframe>
+            
+            <!-- Fallback options if Google Viewer fails -->
+            <div v-else class="fallback-options">
+              <h4>PDF Viewing Options</h4>
+              <p>Choose how you'd like to view this PDF:</p>
+              
+              <button class="btn btn-view" @click="openInNewTab(viewingFile.file)">
+                🔗 Open in New Tab
+              </button>
+              
+              <button class="btn btn-view" @click="tryGoogleViewer">
+                📄 Try Google Viewer
+              </button>
+              
+              <button class="btn btn-download" @click="downloadFile(viewingFile)">
+                📥 Download PDF
+              </button>
+              
+              <p style="margin-top: 1rem; font-size: 12px; color: #666;">
+                Note: PDF viewing may be limited on this device. 
+                For best results, download the PDF or open in a new tab.
+              </p>
             </div>
-            <template v-else>
-              <div class="pdf-controls">
-                <button class="control-btn" @click="prevPage" :disabled="currentPage <= 1">Previous</button>
-                <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
-                <button class="control-btn" @click="nextPage" :disabled="currentPage >= totalPages">Next</button>
-                <select class="zoom-control" v-model="zoomLevel" @change="renderPage">
-                  <option value="0.5">50%</option>
-                  <option value="0.75">75%</option>
-                  <option value="1">100%</option>
-                  <option value="1.25">125%</option>
-                  <option value="1.5">150%</option>
-                  <option value="2">200%</option>
-                </select>
-              </div>
-              <div class="pdf-canvas-container">
-                <canvas ref="pdfCanvas" class="pdf-canvas"></canvas>
-              </div>
-            </template>
           </div>
           
           <!-- Image Viewer -->
@@ -495,11 +451,7 @@
           viewingFile: null,
           downloadUrl: '',
           downloadFileName: '',
-          pdfDoc: null,
-          currentPage: 1,
-          totalPages: 0,
-          zoomLevel: 1,
-          pdfLoading: false
+          useGoogleViewer: false
         };
       },
       computed: {
@@ -571,71 +523,29 @@
             }
           }
         },
-        async viewFile(file) {
+        viewFile(file) {
           this.viewingFile = file;
+          this.useGoogleViewer = false; // Start with fallback options
           document.body.style.overflow = 'hidden';
-
-          if (file.type === 'pdf') {
-            await this.loadPDFViewer(file.file);
-          }
         },
-        async loadPDFViewer(pdfUrl) {
-          this.pdfLoading = true;
-          this.currentPage = 1;
-          this.totalPages = 0;
-
-          try {
-            const response = await fetch(pdfUrl);
-            const pdfData = await response.arrayBuffer();
-            const loadingTask = pdfjsLib.getDocument({data: pdfData});
-            this.pdfDoc = await loadingTask.promise;
-            this.totalPages = this.pdfDoc.numPages;
-            
-            await this.$nextTick();
-            await this.renderPage();
-          } catch (error) {
-            console.error('Error loading PDF:', error);
-          } finally {
-            this.pdfLoading = false;
-          }
+        getGoogleViewerUrl(pdfUrl) {
+          // Get the full URL for Google Docs Viewer
+          const fullUrl = new URL(pdfUrl, window.location.origin).href;
+          return `https://docs.google.com/viewerng/viewer?url=${encodeURIComponent(fullUrl)}`;
         },
-        async renderPage() {
-          if (!this.pdfDoc || !this.$refs.pdfCanvas) return;
-
-          try {
-            const page = await this.pdfDoc.getPage(this.currentPage);
-            const canvas = this.$refs.pdfCanvas;
-            const context = canvas.getContext('2d');
-            
-            const viewport = page.getViewport({ scale: this.zoomLevel });
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-
-            await page.render({
-              canvasContext: context,
-              viewport: viewport
-            }).promise;
-          } catch (error) {
-            console.error('Error rendering page:', error);
-          }
+        tryGoogleViewer() {
+          this.useGoogleViewer = true;
         },
-        async prevPage() {
-          if (this.currentPage > 1) {
-            this.currentPage--;
-            await this.renderPage();
-          }
+        handleGoogleViewerError() {
+          console.log('Google Viewer failed, showing fallback options');
+          this.useGoogleViewer = false;
         },
-        async nextPage() {
-          if (this.currentPage < this.totalPages) {
-            this.currentPage++;
-            await this.renderPage();
-          }
+        openInNewTab(fileUrl) {
+          window.open(fileUrl, '_blank');
         },
         closeModal() {
           this.viewingFile = null;
-          this.pdfDoc = null;
-          this.currentPage = 1;
-          this.totalPages = 0;
+          this.useGoogleViewer = false;
           document.body.style.overflow = '';
         },
         async downloadFile(file) {
