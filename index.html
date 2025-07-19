@@ -499,8 +499,8 @@
       </section>
     </main>
 
-    <!-- FIXED Modal -->
-    <div v-if="viewingFile" class="modal-overlay" @click="closeModal">
+    <!-- FIXED Modal with Opera GX Protection -->
+    <div v-if="viewingFile && modalReady" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
           <h3>{{ viewingFile.title }}</h3>
@@ -575,7 +575,7 @@
     </div>
   </div>
 
-  <!-- FIXED Vue Script -->
+  <!-- FIXED Vue Script with Opera GX Protection -->
   <script>
     const { createApp } = Vue;
 
@@ -586,7 +586,9 @@
           selectedCategory: 'All',
           searchText: '',
           processedPdfs: new Set(),
-          viewingFile: null
+          viewingFile: null,
+          modalReady: false,  // NEW: Prevents premature modal opening
+          appInitialized: false  // NEW: Track app initialization
         };
       },
       computed: {
@@ -600,16 +602,19 @@
             return matchCat && matchText;
           });
 
-          this.$nextTick(() => {
-            filtered.forEach(file => {
-              if (file.type === 'pdf' && 
-                  !file.pdfThumbnail && 
-                  !file.loadingThumbnail && 
-                  !this.processedPdfs.has(file.file)) {
-                this.loadPDFThumbnail(file);
-              }
+          // Only process thumbnails if app is fully initialized
+          if (this.appInitialized) {
+            this.$nextTick(() => {
+              filtered.forEach(file => {
+                if (file.type === 'pdf' && 
+                    !file.pdfThumbnail && 
+                    !file.loadingThumbnail && 
+                    !this.processedPdfs.has(file.file)) {
+                  this.loadPDFThumbnail(file);
+                }
+              });
             });
-          });
+          }
 
           return filtered;
         }
@@ -630,8 +635,13 @@
                 this.$set(file, 'thumbnailGenerationStarted', false);
               }
             });
+            
+            // Mark app as fully initialized after files are loaded
+            this.appInitialized = true;
           } catch (err) {
             console.error('Could not load docs.json:', err);
+            // Still mark as initialized even if files fail to load
+            this.appInitialized = true;
           }
         },
         async loadPDFThumbnail(file) {
@@ -657,7 +667,14 @@
           }
         },
         viewFile(file) {
+          // FIXED: Add additional safety checks
+          if (!this.appInitialized || !file) {
+            console.log('App not ready or invalid file');
+            return;
+          }
+          
           this.viewingFile = file;
+          this.modalReady = true;  // Enable modal display
           document.body.style.overflow = 'hidden';
         },
         openInNewTab(fileUrl) {
@@ -677,6 +694,7 @@
         },
         closeModal() {
           this.viewingFile = null;
+          this.modalReady = false;  // Reset modal state
           document.body.style.overflow = '';
         },
         async downloadFile(file) {
@@ -709,17 +727,24 @@
           }
         },
         getFileName(filePath) {
-          return filePath.split('/').pop();  // FIXED: Added missing closing parenthesis
+          return filePath.split('/').pop();
         }
       },
       mounted() {
-        this.loadFiles();
+        // FIXED: Add initialization delay for Opera GX
+        setTimeout(() => {
+          this.loadFiles();
+        }, 100);  // Small delay to ensure Opera GX is ready
         
         document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && this.viewingFile) {
+          if (e.key === 'Escape' && this.viewingFile && this.modalReady) {
             this.closeModal();
           }
         });
+      },
+      // FIXED: Add cleanup for browser-specific issues
+      beforeUnmount() {
+        document.body.style.overflow = '';
       }
     }).mount('#app');
   </script>
