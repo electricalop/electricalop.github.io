@@ -157,19 +157,25 @@
       filter: blur(1px);
     }
 
-    /* Fixed Modal styles with proper scrolling */
+    /* FIXED: Proper Modal Scrolling for All Mobile Browsers */
     .modal-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      height: 100vh;
+      height: 100%;
       background-color: rgba(0, 0, 0, 0.8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
       z-index: 1000;
-      overflow: hidden;
+      /* CRITICAL: Allow scrolling in overlay */
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      /* Center content but allow scroll */
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px 0;
+      box-sizing: border-box;
     }
 
     .modal-content {
@@ -177,12 +183,14 @@
       border-radius: 8px;
       width: 90vw;
       max-width: 800px;
-      height: 85vh;
-      max-height: 600px;
+      /* FIXED: Remove fixed height, let content determine height */
+      min-height: 300px;
+      max-height: none;
       position: relative;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      /* Allow content to expand naturally */
+      margin: auto;
     }
 
     .modal-header {
@@ -193,8 +201,10 @@
       align-items: center;
       flex-shrink: 0;
       background: white;
-      position: relative;
-      z-index: 2;
+      border-radius: 8px 8px 0 0;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
     .modal-header h3 {
@@ -205,14 +215,9 @@
     }
 
     .modal-body {
-      flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
+      /* FIXED: Remove overflow hidden, let content flow naturally */
       padding: 0;
       position: relative;
-      /* Enable smooth scrolling */
-      scroll-behavior: smooth;
-      -webkit-overflow-scrolling: touch;
     }
 
     .close-btn {
@@ -239,9 +244,10 @@
     .modal-image,
     .modal-video {
       max-width: 100%;
-      max-height: 100%;
+      max-height: 70vh;
       display: block;
       margin: 0 auto;
+      padding: 1rem;
     }
 
     .modal-audio {
@@ -249,11 +255,12 @@
       padding: 1rem;
     }
 
-    /* Fixed PDF Options with proper spacing and scrolling */
+    /* FIXED: Better PDF Options Layout */
     .mobile-pdf-options {
       padding: 1.5rem;
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      min-height: 100%;
+      /* Let it expand naturally */
+      min-height: auto;
       box-sizing: border-box;
     }
 
@@ -320,7 +327,7 @@
       border: 1px solid #2196f3;
       color: #1565c0;
       padding: 1rem;
-      margin: 1rem 0 0 0;
+      margin: 1rem 0 2rem 0;
       border-radius: 6px;
       font-size: 13px;
       text-align: left;
@@ -333,7 +340,6 @@
       color: #0d47a1;
     }
 
-    /* Ensure buttons are always visible and clickable */
     .button-group {
       display: flex;
       gap: 8px;
@@ -341,6 +347,7 @@
       justify-content: center;
     }
 
+    /* MOBILE SPECIFIC FIXES */
     @media (max-width: 768px) {
       main {
         flex-direction: column;
@@ -361,14 +368,23 @@
         justify-content: center;
       }
 
+      /* CRITICAL: Mobile Modal Fixes */
+      .modal-overlay {
+        padding: 10px 0;
+        align-items: flex-start;
+      }
+
       .modal-content {
         width: 95vw;
-        height: 90vh;
-        max-height: none;
+        margin: 0 auto;
+        /* Ensure proper mobile spacing */
+        min-height: auto;
       }
 
       .modal-header {
         padding: 1rem;
+        position: sticky;
+        top: 0;
       }
 
       .modal-header h3 {
@@ -401,11 +417,13 @@
       }
     }
 
-    /* Additional mobile touch improvements */
     @media (max-width: 480px) {
+      .modal-overlay {
+        padding: 5px 0;
+      }
+      
       .modal-content {
         width: 98vw;
-        height: 95vh;
       }
 
       .modal-header {
@@ -444,7 +462,6 @@
         <div v-if="filteredFiles.length === 0">No files found.</div>
         <div v-for="file in filteredFiles" :key="file.file" class="card">
           <div class="thumbnail-container">
-            <!-- For PDF files -->
             <template v-if="file.type === 'pdf'">
               <img 
                 v-if="file.pdfThumbnail" 
@@ -461,8 +478,6 @@
                 :class="{ 'thumbnail-loading': file.thumbnailGenerationStarted }"
               />
             </template>
-            
-            <!-- For non-PDF files -->
             <img 
               v-else 
               :src="file.thumbnail" 
@@ -484,7 +499,7 @@
       </section>
     </main>
 
-    <!-- Fixed Modal for viewing files -->
+    <!-- FIXED Modal -->
     <div v-if="viewingFile" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -492,7 +507,6 @@
           <button class="close-btn" @click="closeModal">&times;</button>
         </div>
         <div class="modal-body">
-          <!-- PDF Mobile-Friendly Options with proper scrolling -->
           <div v-if="viewingFile.type === 'pdf'" class="mobile-pdf-options">
             <h4>📱 Mobile PDF Viewing</h4>
             <p>Choose the best viewing method for your Android device:</p>
@@ -532,7 +546,6 @@
             </div>
           </div>
           
-          <!-- Image Viewer -->
           <img 
             v-else-if="viewingFile.type === 'image'"
             :src="viewingFile.file"
@@ -540,7 +553,6 @@
             class="modal-image"
           />
           
-          <!-- Video Viewer -->
           <video 
             v-else-if="viewingFile.type === 'video'"
             :src="viewingFile.file"
@@ -550,7 +562,6 @@
             Your browser does not support the video tag.
           </video>
           
-          <!-- Audio Viewer -->
           <audio 
             v-else-if="viewingFile.type === 'audio'"
             :src="viewingFile.file"
@@ -564,7 +575,7 @@
     </div>
   </div>
 
-  <!-- Vue Script -->
+  <!-- FIXED Vue Script -->
   <script>
     const { createApp } = Vue;
 
@@ -589,7 +600,6 @@
             return matchCat && matchText;
           });
 
-          // Process PDF thumbnails for visible files
           this.$nextTick(() => {
             filtered.forEach(file => {
               if (file.type === 'pdf' && 
@@ -613,7 +623,6 @@
             const response = await fetch('data/docs.json');
             this.files = await response.json();
             
-            // Initialize additional properties for PDF files
             this.files.forEach(file => {
               if (file.type === 'pdf') {
                 this.$set(file, 'pdfThumbnail', null);
@@ -652,17 +661,14 @@
           document.body.style.overflow = 'hidden';
         },
         openInNewTab(fileUrl) {
-          // This is the most reliable method for Android
           window.open(fileUrl, '_blank');
         },
         tryMozillaViewer() {
-          // Mozilla PDF.js viewer as alternative
           const fullUrl = new URL(this.viewingFile.file, window.location.origin).href;
           const viewerUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fullUrl)}`;
           window.open(viewerUrl, '_blank');
         },
         tryDirectView() {
-          // Direct browser view
           window.open(this.viewingFile.file, '_blank');
         },
         downloadAndClose(file) {
@@ -703,7 +709,7 @@
           }
         },
         getFileName(filePath) {
-          return filePath.split('/'.pop();
+          return filePath.split('/').pop();  // FIXED: Added missing closing parenthesis
         }
       },
       mounted() {
