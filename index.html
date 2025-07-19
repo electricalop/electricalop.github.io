@@ -86,11 +86,13 @@
       margin-right: 1rem;
       background: #f5f5f5;
       border-radius: 6px;
+      position: relative;
     }
 
     .loading-thumbnail {
       font-size: 12px;
       color: #666;
+      text-align: center;
     }
 
     .card img {
@@ -98,7 +100,6 @@
       height: 80px;
       object-fit: cover;
       border-radius: 6px;
-      margin-right: 1rem;
     }
 
     .card h4 {
@@ -109,6 +110,11 @@
       color: #2e7d32;
       text-decoration: none;
       font-weight: bold;
+    }
+
+    .thumbnail-loading {
+      opacity: 0.5;
+      filter: blur(1px);
     }
 
     @media (max-width: 768px) {
@@ -146,12 +152,30 @@
         <div v-if="filteredFiles.length === 0">No files found.</div>
         <div v-for="file in filteredFiles" :key="file.file" class="card">
           <div class="thumbnail-container">
-            <img v-if="file.type !== 'pdf'" :src="file.thumbnail" alt="Thumbnail" />
-            <template v-else>
-              <img v-if="file.pdfThumbnail" :src="file.pdfThumbnail" alt="PDF Thumbnail" />
-              <img v-else-if="!file.loadingThumbnail" :src="file.thumbnail" alt="Default Thumbnail" @error="loadPDFThumbnail(file)" />
-              <div v-else class="loading-thumbnail">Loading...</div>
+            <!-- For PDF files -->
+            <template v-if="file.type === 'pdf'">
+              <img 
+                v-if="file.pdfThumbnail" 
+                :src="file.pdfThumbnail" 
+                alt="PDF Thumbnail"
+              />
+              <div v-else-if="file.loadingThumbnail" class="loading-thumbnail">
+                Loading PDF...
+              </div>
+              <img 
+                v-else 
+                :src="file.thumbnail" 
+                alt="Default PDF Thumbnail"
+                :class="{ 'thumbnail-loading': file.thumbnailGenerationStarted }"
+              />
             </template>
+            
+            <!-- For non-PDF files -->
+            <img 
+              v-else 
+              :src="file.thumbnail" 
+              alt="Thumbnail"
+            />
           </div>
           <div>
             <h4>{{ file.title }}</h4>
@@ -171,7 +195,8 @@
         return {
           files: [],
           selectedCategory: 'All',
-          searchText: ''
+          searchText: '',
+          processedPdfs: new Set()
         };
       },
       computed: {
@@ -179,11 +204,25 @@
           return [...new Set(this.files.map(f => f.category))].sort();
         },
         filteredFiles() {
-          return this.files.filter(f => {
+          const filtered = this.files.filter(f => {
             const matchCat = this.selectedCategory === 'All' || f.category === this.selectedCategory;
             const matchText = f.title.toLowerCase().includes(this.searchText.toLowerCase());
             return matchCat && matchText;
           });
+
+          // Process PDF thumbnails for visible files
+          this.$nextTick(() => {
+            filtered.forEach(file => {
+              if (file.type === 'pdf' && 
+                  !file.pdfThumbnail && 
+                  !file.loadingThumbnail && 
+                  !this.processedPdfs.has(file.file)) {
+                this.loadPDFThumbnail(file);
+              }
+            });
+          });
+
+          return filtered;
         }
       },
       methods: {
@@ -194,20 +233,36 @@
           try {
             const response = await fetch('data/docs.json');
             this.files = await response.json();
+            
+            // Initialize additional properties for PDF files
+            this.files.forEach(file => {
+              if (file.type === 'pdf') {
+                this.$set(file, 'pdfThumbnail', null);
+                this.$set(file, 'loadingThumbnail', false);
+                this.$set(file, 'thumbnailGenerationStarted', false);
+              }
+            });
           } catch (err) {
             console.error('Could not load docs.json:', err);
           }
         },
         async loadPDFThumbnail(file) {
-          if (file.type === 'pdf' && !file.pdfThumbnail && !file.loadingThumbnail) {
+          if (file.type === 'pdf' && 
+              !file.pdfThumbnail && 
+              !file.loadingThumbnail && 
+              !this.processedPdfs.has(file.file)) {
+            
+            this.processedPdfs.add(file.file);
             file.loadingThumbnail = true;
+            file.thumbnailGenerationStarted = true;
+            
             try {
               const thumbnail = await generatePDFThumbnail(file.file);
               if (thumbnail) {
                 file.pdfThumbnail = thumbnail;
               }
             } catch (error) {
-              console.error('Failed to load PDF thumbnail:', error);
+              console.error('Failed to load PDF thumbnail for', file.file, ':', error);
             } finally {
               file.loadingThumbnail = false;
             }
