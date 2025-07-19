@@ -1,8 +1,14 @@
 // PDF.js for thumbnail generation
 async function generatePDFThumbnail(pdfUrl) {
   try {
+    console.log('Generating thumbnail for:', pdfUrl);
+    
     // First try to fetch the PDF to handle CORS
     const response = await fetch(pdfUrl);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
     const pdfData = await response.arrayBuffer();
     
     // Load the PDF data
@@ -27,9 +33,10 @@ async function generatePDFThumbnail(pdfUrl) {
       viewport: scaledViewport
     }).promise;
     
+    console.log('Successfully generated thumbnail for:', pdfUrl);
     return canvas.toDataURL('image/jpeg', 0.8);
   } catch (error) {
-    console.error('Error generating PDF thumbnail:', error);
+    console.error('Error generating PDF thumbnail for', pdfUrl, ':', error);
     return null;
   }
 }
