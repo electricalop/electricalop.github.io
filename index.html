@@ -231,6 +231,11 @@
       border: none;
     }
 
+    /* Hidden download link */
+    .hidden-download {
+      display: none;
+    }
+
     @media (max-width: 768px) {
       main {
         flex-direction: column;
@@ -315,9 +320,9 @@
               <button class="btn btn-view" @click="viewFile(file)">
                 👁️ View
               </button>
-              <a class="btn btn-download" :href="file.file" :download="getFileName(file.file)">
+              <button class="btn btn-download" @click="downloadFile(file)">
                 📥 Download
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -335,7 +340,7 @@
           <!-- PDF Viewer -->
           <iframe 
             v-if="viewingFile.type === 'pdf'"
-            :src="viewingFile.file"
+            :src="viewingFile.file + '#toolbar=1&navpanes=1&scrollbar=1'"
             class="modal-pdf"
             frameborder="0"
           ></iframe>
@@ -370,6 +375,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Hidden download link -->
+    <a ref="hiddenDownloadLink" class="hidden-download" :href="downloadUrl" :download="downloadFileName"></a>
   </div>
 
   <!-- Vue Script -->
@@ -383,7 +391,9 @@
           selectedCategory: 'All',
           searchText: '',
           processedPdfs: new Set(),
-          viewingFile: null
+          viewingFile: null,
+          downloadUrl: '',
+          downloadFileName: ''
         };
       },
       computed: {
@@ -464,6 +474,44 @@
           this.viewingFile = null;
           // Restore body scrolling
           document.body.style.overflow = '';
+        },
+        async downloadFile(file) {
+          try {
+            // Fetch the file as blob
+            const response = await fetch(file.file);
+            const blob = await response.blob();
+            
+            // Create object URL
+            const url = window.URL.createObjectURL(blob);
+            
+            // Get filename from path
+            const fileName = this.getFileName(file.file);
+            
+            // Create temporary download link and trigger download
+            const tempLink = document.createElement('a');
+            tempLink.href = url;
+            tempLink.download = fileName;
+            tempLink.style.display = 'none';
+            
+            // Add to DOM, click, and remove
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+            
+            // Clean up object URL
+            window.URL.revokeObjectURL(url);
+            
+          } catch (error) {
+            console.error('Download failed:', error);
+            // Fallback to direct link download
+            const tempLink = document.createElement('a');
+            tempLink.href = file.file;
+            tempLink.download = this.getFileName(file.file);
+            tempLink.style.display = 'none';
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+          }
         },
         getFileName(filePath) {
           return filePath.split('/').pop();
