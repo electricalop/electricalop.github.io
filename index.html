@@ -157,46 +157,62 @@
       filter: blur(1px);
     }
 
-    /* Modal styles */
+    /* Fixed Modal styles with proper scrolling */
     .modal-overlay {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
+      height: 100vh;
       background-color: rgba(0, 0, 0, 0.8);
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 1000;
+      overflow: hidden;
     }
 
     .modal-content {
       background: white;
       border-radius: 8px;
-      max-width: 95vw;
-      max-height: 95vh;
+      width: 90vw;
+      max-width: 800px;
+      height: 85vh;
+      max-height: 600px;
       position: relative;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
 
     .modal-header {
-      padding: 1rem;
+      padding: 1rem 1.5rem;
       border-bottom: 1px solid #ddd;
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-shrink: 0;
+      background: white;
+      position: relative;
+      z-index: 2;
+    }
+
+    .modal-header h3 {
+      margin: 0;
+      font-size: 1.1em;
+      color: #333;
+      word-break: break-word;
     }
 
     .modal-body {
       flex: 1;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0;
+      position: relative;
+      /* Enable smooth scrolling */
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
     }
 
     .close-btn {
@@ -205,16 +221,19 @@
       font-size: 24px;
       cursor: pointer;
       color: #666;
-      padding: 0;
-      width: 30px;
-      height: 30px;
+      padding: 4px;
+      width: 32px;
+      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
+      border-radius: 4px;
+      flex-shrink: 0;
     }
 
     .close-btn:hover {
       color: #000;
+      background: #f5f5f5;
     }
 
     .modal-image,
@@ -230,33 +249,39 @@
       padding: 1rem;
     }
 
+    /* Fixed PDF Options with proper spacing and scrolling */
     .mobile-pdf-options {
-      padding: 2rem;
-      text-align: center;
+      padding: 1.5rem;
       background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      border-radius: 12px;
-      margin: 1rem;
+      min-height: 100%;
+      box-sizing: border-box;
     }
 
     .mobile-pdf-options h4 {
-      margin-bottom: 1rem;
+      margin: 0 0 1rem 0;
       color: #333;
       font-size: 1.2em;
+      text-align: center;
     }
 
-    .mobile-pdf-options p {
-      margin-bottom: 1.5rem;
+    .mobile-pdf-options > p {
+      margin: 0 0 1.5rem 0;
       color: #666;
       line-height: 1.4;
+      text-align: center;
     }
 
     .option-card {
-      margin: 1rem 0;
+      margin: 0 0 1.5rem 0;
       padding: 1.5rem;
       background: white;
       border-radius: 8px;
       border: 1px solid #e0e0e0;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .option-card:last-of-type {
+      margin-bottom: 1rem;
     }
 
     .option-card h5 {
@@ -265,6 +290,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .option-card p {
@@ -272,10 +298,11 @@
       font-size: 14px;
       color: #555;
       text-align: left;
+      line-height: 1.4;
     }
 
     .option-card .btn {
-      margin: 0.5rem;
+      margin: 0.25rem;
       min-width: 140px;
     }
 
@@ -285,7 +312,7 @@
       font-size: 11px;
       padding: 2px 8px;
       border-radius: 12px;
-      margin-left: 8px;
+      white-space: nowrap;
     }
 
     .info-box {
@@ -293,15 +320,25 @@
       border: 1px solid #2196f3;
       color: #1565c0;
       padding: 1rem;
-      margin: 1rem 0;
+      margin: 1rem 0 0 0;
       border-radius: 6px;
       font-size: 13px;
       text-align: left;
+      line-height: 1.4;
     }
 
     .info-box strong {
       display: block;
-      margin-bottom: 5px;
+      margin-bottom: 8px;
+      color: #0d47a1;
+    }
+
+    /* Ensure buttons are always visible and clickable */
+    .button-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     @media (max-width: 768px) {
@@ -325,14 +362,62 @@
       }
 
       .modal-content {
-        max-width: 98vw;
-        max-height: 98vh;
+        width: 95vw;
+        height: 90vh;
+        max-height: none;
+      }
+
+      .modal-header {
+        padding: 1rem;
+      }
+
+      .modal-header h3 {
+        font-size: 1em;
+      }
+
+      .mobile-pdf-options {
+        padding: 1rem;
+      }
+
+      .option-card {
+        padding: 1rem;
+        margin-bottom: 1rem;
       }
 
       .option-card .btn {
         min-width: 120px;
         font-size: 12px;
         padding: 8px 12px;
+        margin: 0.2rem;
+      }
+
+      .button-group {
+        gap: 4px;
+      }
+
+      .recommended-badge {
+        font-size: 10px;
+        padding: 1px 6px;
+      }
+    }
+
+    /* Additional mobile touch improvements */
+    @media (max-width: 480px) {
+      .modal-content {
+        width: 98vw;
+        height: 95vh;
+      }
+
+      .modal-header {
+        padding: 0.75rem;
+      }
+
+      .mobile-pdf-options {
+        padding: 0.75rem;
+      }
+
+      .option-card {
+        padding: 1rem 0.75rem;
       }
     }
   </style>
@@ -399,7 +484,7 @@
       </section>
     </main>
 
-    <!-- Modal for viewing files -->
+    <!-- Fixed Modal for viewing files -->
     <div v-if="viewingFile" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -407,7 +492,7 @@
           <button class="close-btn" @click="closeModal">&times;</button>
         </div>
         <div class="modal-body">
-          <!-- PDF Mobile-Friendly Options -->
+          <!-- PDF Mobile-Friendly Options with proper scrolling -->
           <div v-if="viewingFile.type === 'pdf'" class="mobile-pdf-options">
             <h4>📱 Mobile PDF Viewing</h4>
             <p>Choose the best viewing method for your Android device:</p>
@@ -418,23 +503,27 @@
                 <span class="recommended-badge">RECOMMENDED</span>
               </h5>
               <p>Open directly in your device's default PDF app or browser. Works reliably on all Android browsers including Chrome and Opera GX.</p>
-              <button class="btn btn-view" @click="openInNewTab(viewingFile.file)">
-                🔗 Open in New Tab
-              </button>
-              <button class="btn btn-download" @click="downloadAndClose(viewingFile)">
-                📥 Download PDF
-              </button>
+              <div class="button-group">
+                <button class="btn btn-view" @click="openInNewTab(viewingFile.file)">
+                  🔗 Open in New Tab
+                </button>
+                <button class="btn btn-download" @click="downloadAndClose(viewingFile)">
+                  📥 Download PDF
+                </button>
+              </div>
             </div>
 
             <div class="option-card">
               <h5>🔧 Alternative Viewers</h5>
               <p>These may work but can fail on mobile browsers (like the face icon or error you experienced).</p>
-              <button class="btn btn-view" @click="tryMozillaViewer">
-                🦊 Mozilla PDF.js
-              </button>
-              <button class="btn btn-view" @click="tryDirectView">
-                📋 Direct Browser View
-              </button>
+              <div class="button-group">
+                <button class="btn btn-view" @click="tryMozillaViewer">
+                  🦊 Mozilla PDF.js
+                </button>
+                <button class="btn btn-view" @click="tryDirectView">
+                  📋 Direct Browser View
+                </button>
+              </div>
             </div>
             
             <div class="info-box">
@@ -614,7 +703,7 @@
           }
         },
         getFileName(filePath) {
-          return filePath.split('/').pop();
+          return filePath.split('/'.pop();
         }
       },
       mounted() {
