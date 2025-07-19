@@ -102,19 +102,133 @@
       border-radius: 6px;
     }
 
-    .card h4 {
-      margin: 0 0 5px 0;
+    .card-content {
+      flex: 1;
     }
 
-    .card a {
-      color: #2e7d32;
+    .card h4 {
+      margin: 0 0 10px 0;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 5px;
       text-decoration: none;
       font-weight: bold;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-view {
+      background-color: #2e7d32;
+      color: white;
+    }
+
+    .btn-view:hover {
+      background-color: #1b5e20;
+    }
+
+    .btn-download {
+      background-color: #1976d2;
+      color: white;
+    }
+
+    .btn-download:hover {
+      background-color: #1565c0;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
     }
 
     .thumbnail-loading {
       opacity: 0.5;
       filter: blur(1px);
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 8px;
+      max-width: 90vw;
+      max-height: 90vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 1rem;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-body {
+      padding: 0;
+      max-height: calc(90vh - 80px);
+      overflow: auto;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-btn:hover {
+      color: #000;
+    }
+
+    .modal-image,
+    .modal-video {
+      max-width: 100%;
+      max-height: 70vh;
+      display: block;
+      margin: 0 auto;
+    }
+
+    .modal-audio {
+      width: 100%;
+      padding: 1rem;
+    }
+
+    .modal-pdf {
+      width: 100%;
+      height: 70vh;
+      border: none;
     }
 
     @media (max-width: 768px) {
@@ -126,6 +240,24 @@
         width: 100%;
         border-right: none;
         border-bottom: 1px solid #ddd;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        text-align: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        max-width: 95vw;
+        max-height: 95vh;
+      }
+
+      .modal-pdf {
+        height: 60vh;
       }
     }
   </style>
@@ -177,13 +309,67 @@
               alt="Thumbnail"
             />
           </div>
-          <div>
+          <div class="card-content">
             <h4>{{ file.title }}</h4>
-            <a :href="file.file" target="_blank">View / Download {{ file.type.toUpperCase() }}</a>
+            <div class="actions">
+              <button class="btn btn-view" @click="viewFile(file)">
+                👁️ View
+              </button>
+              <a class="btn btn-download" :href="file.file" :download="getFileName(file.file)">
+                📥 Download
+              </a>
+            </div>
           </div>
         </div>
       </section>
     </main>
+
+    <!-- Modal for viewing files -->
+    <div v-if="viewingFile" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <h3>{{ viewingFile.title }}</h3>
+          <button class="close-btn" @click="closeModal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <!-- PDF Viewer -->
+          <iframe 
+            v-if="viewingFile.type === 'pdf'"
+            :src="viewingFile.file"
+            class="modal-pdf"
+            frameborder="0"
+          ></iframe>
+          
+          <!-- Image Viewer -->
+          <img 
+            v-else-if="viewingFile.type === 'image'"
+            :src="viewingFile.file"
+            :alt="viewingFile.title"
+            class="modal-image"
+          />
+          
+          <!-- Video Viewer -->
+          <video 
+            v-else-if="viewingFile.type === 'video'"
+            :src="viewingFile.file"
+            controls
+            class="modal-video"
+          >
+            Your browser does not support the video tag.
+          </video>
+          
+          <!-- Audio Viewer -->
+          <audio 
+            v-else-if="viewingFile.type === 'audio'"
+            :src="viewingFile.file"
+            controls
+            class="modal-audio"
+          >
+            Your browser does not support the audio element.
+          </audio>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Vue Script -->
@@ -196,7 +382,8 @@
           files: [],
           selectedCategory: 'All',
           searchText: '',
-          processedPdfs: new Set()
+          processedPdfs: new Set(),
+          viewingFile: null
         };
       },
       computed: {
@@ -267,10 +454,30 @@
               file.loadingThumbnail = false;
             }
           }
+        },
+        viewFile(file) {
+          this.viewingFile = file;
+          // Prevent body scrolling when modal is open
+          document.body.style.overflow = 'hidden';
+        },
+        closeModal() {
+          this.viewingFile = null;
+          // Restore body scrolling
+          document.body.style.overflow = '';
+        },
+        getFileName(filePath) {
+          return filePath.split('/').pop();
         }
       },
       mounted() {
         this.loadFiles();
+        
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && this.viewingFile) {
+            this.closeModal();
+          }
+        });
       }
     }).mount('#app');
   </script>
