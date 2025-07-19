@@ -230,40 +230,78 @@
       padding: 1rem;
     }
 
-    .modal-pdf {
-      width: 100%;
-      height: 80vh;
-      border: none;
-      min-height: 500px;
-    }
-
-    .fallback-options {
+    .mobile-pdf-options {
       padding: 2rem;
       text-align: center;
-      background: #f9f9f9;
-      border-radius: 8px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-radius: 12px;
       margin: 1rem;
     }
 
-    .fallback-options h4 {
+    .mobile-pdf-options h4 {
       margin-bottom: 1rem;
       color: #333;
+      font-size: 1.2em;
     }
 
-    .fallback-options .btn {
+    .mobile-pdf-options p {
+      margin-bottom: 1.5rem;
+      color: #666;
+      line-height: 1.4;
+    }
+
+    .option-card {
+      margin: 1rem 0;
+      padding: 1.5rem;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .option-card h5 {
+      margin: 0 0 0.8rem 0;
+      color: #2e7d32;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .option-card p {
+      margin: 0 0 1rem 0;
+      font-size: 14px;
+      color: #555;
+      text-align: left;
+    }
+
+    .option-card .btn {
       margin: 0.5rem;
-      min-width: 120px;
+      min-width: 140px;
     }
 
-    .google-viewer {
-      width: 100%;
-      height: 80vh;
-      border: none;
+    .recommended-badge {
+      background: #4caf50;
+      color: white;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      margin-left: 8px;
     }
 
-    /* Hidden download link */
-    .hidden-download {
-      display: none;
+    .info-box {
+      background: #e3f2fd;
+      border: 1px solid #2196f3;
+      color: #1565c0;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 6px;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .info-box strong {
+      display: block;
+      margin-bottom: 5px;
     }
 
     @media (max-width: 768px) {
@@ -291,8 +329,10 @@
         max-height: 98vh;
       }
 
-      .modal-pdf, .google-viewer {
-        height: 70vh;
+      .option-card .btn {
+        min-width: 120px;
+        font-size: 12px;
+        padding: 8px 12px;
       }
     }
   </style>
@@ -367,38 +407,39 @@
           <button class="close-btn" @click="closeModal">&times;</button>
         </div>
         <div class="modal-body">
-          <!-- PDF Viewer with Fallback Options -->
-          <div v-if="viewingFile.type === 'pdf'">
-            <!-- Try Google Docs Viewer first (works better on mobile) -->
-            <iframe 
-              v-if="useGoogleViewer"
-              :src="getGoogleViewerUrl(viewingFile.file)"
-              class="google-viewer"
-              frameborder="0"
-              @error="handleGoogleViewerError"
-            ></iframe>
+          <!-- PDF Mobile-Friendly Options -->
+          <div v-if="viewingFile.type === 'pdf'" class="mobile-pdf-options">
+            <h4>📱 Mobile PDF Viewing</h4>
+            <p>Choose the best viewing method for your Android device:</p>
             
-            <!-- Fallback options if Google Viewer fails -->
-            <div v-else class="fallback-options">
-              <h4>PDF Viewing Options</h4>
-              <p>Choose how you'd like to view this PDF:</p>
-              
+            <div class="option-card">
+              <h5>
+                🚀 Instant Access 
+                <span class="recommended-badge">RECOMMENDED</span>
+              </h5>
+              <p>Open directly in your device's default PDF app or browser. Works reliably on all Android browsers including Chrome and Opera GX.</p>
               <button class="btn btn-view" @click="openInNewTab(viewingFile.file)">
                 🔗 Open in New Tab
               </button>
-              
-              <button class="btn btn-view" @click="tryGoogleViewer">
-                📄 Try Google Viewer
-              </button>
-              
-              <button class="btn btn-download" @click="downloadFile(viewingFile)">
+              <button class="btn btn-download" @click="downloadAndClose(viewingFile)">
                 📥 Download PDF
               </button>
-              
-              <p style="margin-top: 1rem; font-size: 12px; color: #666;">
-                Note: PDF viewing may be limited on this device. 
-                For best results, download the PDF or open in a new tab.
-              </p>
+            </div>
+
+            <div class="option-card">
+              <h5>🔧 Alternative Viewers</h5>
+              <p>These may work but can fail on mobile browsers (like the face icon or error you experienced).</p>
+              <button class="btn btn-view" @click="tryMozillaViewer">
+                🦊 Mozilla PDF.js
+              </button>
+              <button class="btn btn-view" @click="tryDirectView">
+                📋 Direct Browser View
+              </button>
+            </div>
+            
+            <div class="info-box">
+              <strong>📱 Why Google Viewer Fails on Android:</strong>
+              Google Docs Viewer has known issues with mobile browsers, especially Android Chrome and Opera GX. It frequently returns empty responses (204 errors) or shows placeholder icons instead of PDF content. This is a long-standing, unfixed issue with Google's service.
             </div>
           </div>
           
@@ -432,9 +473,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Hidden download link -->
-    <a ref="hiddenDownloadLink" class="hidden-download" :href="downloadUrl" :download="downloadFileName"></a>
   </div>
 
   <!-- Vue Script -->
@@ -448,10 +486,7 @@
           selectedCategory: 'All',
           searchText: '',
           processedPdfs: new Set(),
-          viewingFile: null,
-          downloadUrl: '',
-          downloadFileName: '',
-          useGoogleViewer: false
+          viewingFile: null
         };
       },
       computed: {
@@ -525,27 +560,28 @@
         },
         viewFile(file) {
           this.viewingFile = file;
-          this.useGoogleViewer = false; // Start with fallback options
           document.body.style.overflow = 'hidden';
         },
-        getGoogleViewerUrl(pdfUrl) {
-          // Get the full URL for Google Docs Viewer
-          const fullUrl = new URL(pdfUrl, window.location.origin).href;
-          return `https://docs.google.com/viewerng/viewer?url=${encodeURIComponent(fullUrl)}`;
-        },
-        tryGoogleViewer() {
-          this.useGoogleViewer = true;
-        },
-        handleGoogleViewerError() {
-          console.log('Google Viewer failed, showing fallback options');
-          this.useGoogleViewer = false;
-        },
         openInNewTab(fileUrl) {
+          // This is the most reliable method for Android
           window.open(fileUrl, '_blank');
+        },
+        tryMozillaViewer() {
+          // Mozilla PDF.js viewer as alternative
+          const fullUrl = new URL(this.viewingFile.file, window.location.origin).href;
+          const viewerUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fullUrl)}`;
+          window.open(viewerUrl, '_blank');
+        },
+        tryDirectView() {
+          // Direct browser view
+          window.open(this.viewingFile.file, '_blank');
+        },
+        downloadAndClose(file) {
+          this.downloadFile(file);
+          this.closeModal();
         },
         closeModal() {
           this.viewingFile = null;
-          this.useGoogleViewer = false;
           document.body.style.overflow = '';
         },
         async downloadFile(file) {
