@@ -7,443 +7,409 @@
   <script src="https://unpkg.com/vue@3"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
-    // Configure PDF.js worker
     window['pdfjs-dist/build/pdf'] = pdfjsLib;
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
   </script>
   <script src="js/pdf-thumbnail.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Inter:400,600,700&display=swap" rel="stylesheet">
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; background: #f5f5f5; }
-    #app { display: flex; flex-direction: column; min-height: 100vh; }
-
-    header {
-      background: #2e7d32;
-      color: white;
-      padding: 1rem;
-      text-align: center;
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: 'Inter', Arial, sans-serif;
+      background: #f5f7fa;
+      min-height: 100vh;
+      color: #28303d;
     }
-
+    #app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    header {
+      background: linear-gradient(90deg, #388e3c 0%, #43a047 100%);
+      color: #fff;
+      padding: 1.1rem;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(70,150,100,0.07);
+      letter-spacing: 1px;
+    }
     main {
       display: flex;
       flex: 1;
       overflow: hidden;
+      background: #f5f7fa;
     }
-
     aside {
-      width: 250px;
-      background: #fff;
-      border-right: 1px solid #ddd;
+      width: 240px;
+      background: #ffffff;
+      border-right: 1.5px solid #e4e4e4;
       padding: 1rem;
       overflow-y: auto;
+      flex-shrink: 0;
+      display: none;
     }
-
+    @media (min-width: 800px) {
+      aside { display: block; }
+    }
+    aside h3 {
+      margin-top: 0;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #388e3c;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.7em;
+    }
     aside ul {
       list-style: none;
       padding: 0;
+      margin: 0;
     }
-
     aside li {
-      margin: 6px 0;
-      padding: 6px 10px;
-      border-radius: 5px;
+      margin: 9px 0;
+      padding: 8px 12px;
+      border-radius: 7px;
       cursor: pointer;
+      color: #28303d;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: background-color 0.12s;
     }
-
-    aside li:hover, aside li.active {
-      background-color: #e0f2f1;
+    aside li:hover,
+    aside li.active {
+      background: #e8f5e9;
+      color: #2e7d32;
     }
-
     section {
       flex: 1;
-      padding: 1rem;
+      min-width: 0;
+      padding: 0.6em 0.5em 2em 0.5em;
       overflow-y: auto;
-    }
-
-    .search input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    .card {
-      background: white;
-      padding: 1rem;
-      margin-bottom: 1rem;
       display: flex;
-      align-items: center;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    .thumbnail-container {
-      width: 80px;
-      height: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: 1rem;
-      background: #f5f5f5;
-      border-radius: 6px;
+      flex-direction: column;
       position: relative;
     }
 
-    .loading-thumbnail {
-      font-size: 12px;
-      color: #666;
+    /* Modern search box */
+    .search-area {
+      width: 100%;
+      margin-bottom: 2rem;
+      margin-top: 1.2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .enhanced-search {
+      width: 100%;
+      max-width: 410px;
+      background: #fff;
+      border-radius: 25px;
+      box-shadow: 0 2px 8px rgba(46,125,50,0.08);
+      border: 2px solid #c8e6c9;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      transition: box-shadow 0.2s, border 0.2s;
+    }
+    .enhanced-search:focus-within {
+      box-shadow: 0 4px 16px rgba(46,125,50,0.16);
+      border-color: #2e7d32;
+    }
+    .enhanced-search input {
+      border: none;
+      outline: none;
+      flex: 1;
+      color: #28303d;
+      background: transparent;
+      font-size: 1.07em;
+      padding: 14px 16px;
+      font-family: inherit;
+      transition: color 0.12s;
+    }
+    .enhanced-search input::placeholder {
+      color: #a8b2bb;
+    }
+    .enhanced-search .search-icon {
+      margin-left: 10px;
+      margin-right: 9px;
+      display: flex;
+      align-items: center;
+      color: #2e7d32;
+      font-size: 1.27em;
+    }
+
+    /* Card style */
+    .card {
+      background: #fff;
+      padding: 0.8rem 1.1rem;
+      margin: 0 auto 1.2rem auto;
+      border-radius: 18px;
+      box-shadow: 0 2.5px 12px rgba(80,140,120,0.09);
+      display: flex;
+      align-items: center;
+      gap: 19px;
+      max-width: 650px;
+      width: 97%;
+      border: 1.2px solid #e0e0e0;
+    }
+    .thumbnail-container {
+      width: 74px;
+      height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ecf5ee;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+    .thumbnail-loading {
+      font-size: 13px;
+      color: #888;
       text-align: center;
     }
-
     .card img {
-      width: 80px;
-      height: 80px;
+      width: 74px;
+      height: 74px;
       object-fit: cover;
-      border-radius: 6px;
+      border-radius: 9px;
     }
-
     .card-content {
       flex: 1;
+      display: flex;
+      flex-direction: column;
     }
-
     .card h4 {
-      margin: 0 0 10px 0;
+      margin: 0 0 8px 0;
+      font-size: 1.09rem;
+      color: #1b3e20;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: 200px;
+      letter-spacing: 0.1px;
     }
-
     .actions {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+      margin-top: 4px;
     }
-
     .btn {
-      padding: 8px 16px;
-      border-radius: 5px;
+      padding: 9px 16px;
+      border-radius: 7px;
       text-decoration: none;
-      font-weight: bold;
-      font-size: 14px;
+      font-weight: 600;
+      font-size: 13.7px;
       border: none;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      transition: all 0.2s ease;
+      letter-spacing: 0.05em;
+      transition: box-shadow 0.13s, background 0.12s;
+      box-shadow: 0 1.5px 3.5px 0 rgba(40,140,90,0.07);
+      outline: none;
     }
-
     .btn-view {
       background-color: #2e7d32;
-      color: white;
+      color: #fff;
     }
-
-    .btn-view:hover {
-      background-color: #1b5e20;
+    .btn-view:hover, .btn-view:focus {
+      background-color: #207020;
+      box-shadow: 0 2px 7px rgba(46,125,50,0.12);
     }
-
     .btn-download {
       background-color: #1976d2;
-      color: white;
+      color: #fff;
     }
-
-    .btn-download:hover {
-      background-color: #1565c0;
+    .btn-download:hover, .btn-download:focus {
+      background-color: #155fc0;
+      box-shadow: 0 2px 7px rgba(25,118,210,0.1);
     }
-
-    .btn:active {
-      transform: translateY(1px);
-    }
-
     .thumbnail-loading {
-      opacity: 0.5;
-      filter: blur(1px);
+      opacity: 0.7;
     }
-
-    /* FIXED: Proper Modal Scrolling for All Mobile Browsers */
     .modal-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.8);
-      z-index: 1000;
-      /* CRITICAL: Allow scrolling in overlay */
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-      /* Center content but allow scroll */
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(22, 31, 46, 0.55);
+      z-index: 1200;
       display: flex;
       align-items: flex-start;
       justify-content: center;
-      padding: 20px 0;
+      overflow-y: auto;
+      padding: 2vw 0.2rem;
       box-sizing: border-box;
     }
-
     .modal-content {
-      background: white;
-      border-radius: 8px;
-      width: 90vw;
-      max-width: 800px;
-      /* FIXED: Remove fixed height, let content determine height */
-      min-height: 300px;
-      max-height: none;
-      position: relative;
+      background: #fff;
+      border-radius: 17px;
+      width: 99vw;
+      max-width: 450px;
+      min-width: 0;
+      padding: 0;
+      box-shadow: 0 6px 30px rgba(10,30,60,0.15);
       display: flex;
       flex-direction: column;
-      /* Allow content to expand naturally */
-      margin: auto;
+      overflow: hidden;
+      margin-bottom: 2vw;
     }
-
     .modal-header {
-      padding: 1rem 1.5rem;
-      border-bottom: 1px solid #ddd;
+      background: linear-gradient(90deg, #378e63 0%, #228940 100%);
+      color: #fff;
+      padding: 0.85em 1.1em;
+      font-size: 1.02em;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      flex-shrink: 0;
-      background: white;
-      border-radius: 8px 8px 0 0;
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      justify-content: space-between;
+      border-radius: 17px 17px 0 0;
+      font-weight: 600;
     }
-
-    .modal-header h3 {
-      margin: 0;
-      font-size: 1.1em;
-      color: #333;
-      word-break: break-word;
-    }
-
-    .modal-body {
-      /* FIXED: Remove overflow hidden, let content flow naturally */
-      padding: 0;
-      position: relative;
-    }
-
-    .close-btn {
+    .modal-header button.close-btn {
       background: none;
       border: none;
-      font-size: 24px;
+      color: #fff;
+      font-size: 1.8em;
       cursor: pointer;
-      color: #666;
-      padding: 4px;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 4px;
-      flex-shrink: 0;
+      transition: color 0.1s;
     }
-
-    .close-btn:hover {
-      color: #000;
-      background: #f5f5f5;
+    .modal-header button.close-btn:hover,
+    .modal-header button.close-btn:focus {
+      color: #eafae6;
     }
-
-    .modal-image,
-    .modal-video {
-      max-width: 100%;
+    .modal-body {
+      background: #f5f7fa;
+      padding: 1.2em;
+      overflow-y: auto;
       max-height: 70vh;
-      display: block;
-      margin: 0 auto;
-      padding: 1rem;
+      min-height: 190px;
+      /* make all modal content scrollable on mobile */
+      -webkit-overflow-scrolling: touch;
     }
-
-    .modal-audio {
-      width: 100%;
-      padding: 1rem;
-    }
-
-    /* FIXED: Better PDF Options Layout */
-    .mobile-pdf-options {
-      padding: 1.5rem;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      /* Let it expand naturally */
-      min-height: auto;
-      box-sizing: border-box;
-    }
-
+    /* Responsive option panels for VUE modal */
     .mobile-pdf-options h4 {
-      margin: 0 0 1rem 0;
-      color: #333;
       font-size: 1.2em;
-      text-align: center;
+      font-weight: 700;
+      color: #222;
+      margin: 8px 0 2px 0;
     }
-
     .mobile-pdf-options > p {
-      margin: 0 0 1.5rem 0;
-      color: #666;
-      line-height: 1.4;
-      text-align: center;
+      color: #466060;
+      margin-bottom: 11px;
+      font-size: 1em;
+      margin-top: 0;
     }
-
     .option-card {
-      margin: 0 0 1.5rem 0;
-      padding: 1.5rem;
-      background: white;
-      border-radius: 8px;
-      border: 1px solid #e0e0e0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1.5px 7px rgba(30,120,60,0.05);
+      border: 1.2px solid #dee7df;
+      margin-bottom: 1.25rem;
+      padding: 1rem 1rem 0.3rem 1rem;
     }
-
-    .option-card:last-of-type {
-      margin-bottom: 1rem;
-    }
-
+    .option-card:last-of-type { margin-bottom: 1rem; }
     .option-card h5 {
-      margin: 0 0 0.8rem 0;
-      color: #2e7d32;
+      margin: 0 0 0.6em 0;
+      color: #347e54;
+      font-size: 1em;
       display: flex;
       align-items: center;
       gap: 8px;
-      flex-wrap: wrap;
     }
-
-    .option-card p {
-      margin: 0 0 1rem 0;
-      font-size: 14px;
-      color: #555;
-      text-align: left;
-      line-height: 1.4;
-    }
-
-    .option-card .btn {
-      margin: 0.25rem;
-      min-width: 140px;
-    }
-
     .recommended-badge {
-      background: #4caf50;
-      color: white;
-      font-size: 11px;
+      display: inline-block;
+      background: #43a047;
+      color: #fff;
+      font-size: 0.86em;
       padding: 2px 8px;
-      border-radius: 12px;
-      white-space: nowrap;
+      border-radius: 9px;
+      margin-left: 8px;
+      letter-spacing: 1px;
+      font-weight: 600;
+      text-shadow: 0 1px 1px rgba(30,130,80,0.06);
     }
-
-    .info-box {
-      background: #e3f2fd;
-      border: 1px solid #2196f3;
-      color: #1565c0;
-      padding: 1rem;
-      margin: 1rem 0 2rem 0;
-      border-radius: 6px;
-      font-size: 13px;
-      text-align: left;
-      line-height: 1.4;
+    .option-card p {
+      color: #406664;
+      margin: 0 0 0.7em 0;
+      font-size: 0.98em;
+      letter-spacing: 0.1px;
     }
-
-    .info-box strong {
-      display: block;
-      margin-bottom: 8px;
-      color: #0d47a1;
-    }
-
     .button-group {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
-      justify-content: center;
+      margin-bottom: 3px;
     }
-
-    /* MOBILE SPECIFIC FIXES */
-    @media (max-width: 768px) {
-      main {
-        flex-direction: column;
-      }
-
-      aside {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid #ddd;
-      }
-
-      .actions {
-        flex-direction: column;
-      }
-
-      .btn {
-        text-align: center;
-        justify-content: center;
-      }
-
-      /* CRITICAL: Mobile Modal Fixes */
-      .modal-overlay {
-        padding: 10px 0;
-        align-items: flex-start;
-      }
-
-      .modal-content {
-        width: 95vw;
-        margin: 0 auto;
-        /* Ensure proper mobile spacing */
-        min-height: auto;
-      }
-
-      .modal-header {
-        padding: 1rem;
-        position: sticky;
-        top: 0;
-      }
-
-      .modal-header h3 {
-        font-size: 1em;
-      }
-
-      .mobile-pdf-options {
-        padding: 1rem;
-      }
-
-      .option-card {
-        padding: 1rem;
-        margin-bottom: 1rem;
-      }
-
-      .option-card .btn {
-        min-width: 120px;
-        font-size: 12px;
-        padding: 8px 12px;
-        margin: 0.2rem;
-      }
-
-      .button-group {
-        gap: 4px;
-      }
-
-      .recommended-badge {
-        font-size: 10px;
-        padding: 1px 6px;
-      }
+    /* Button alternative colors */
+    .option-card .btn {
+      min-width: 140px;
+      padding: 8px 0;
+      font-size: 0.99em;
+      flex: 1 1 auto;
     }
-
-    @media (max-width: 480px) {
-      .modal-overlay {
-        padding: 5px 0;
-      }
-      
-      .modal-content {
-        width: 98vw;
-      }
-
-      .modal-header {
-        padding: 0.75rem;
-      }
-
-      .mobile-pdf-options {
-        padding: 0.75rem;
-      }
-
-      .option-card {
-        padding: 1rem 0.75rem;
-      }
+    .option-card .btn-view {
+      background: #43a047;
+      color: #fff !important;
+    }
+    .option-card .btn-view:hover, .option-card .btn-view:focus {
+      background: #228940;
+      color: #fff !important;
+    }
+    .option-card .btn-download {
+      background: #1976d2;
+      color: #fff !important;
+    }
+    .option-card .btn-download:hover, .option-card .btn-download:focus {
+      background: #125abe;
+      color: #fff !important;
+    }
+    .option-card .btn-view svg,
+    .option-card .btn-download svg {
+      vertical-align: middle;
+      margin-right: 4px;
+      margin-bottom: 2px;
+      width: 1.15em;
+      height: 1.1em;
+      fill: currentColor;
+    }
+    .info-box {
+      background: #e9f5fb;
+      border: 1.3px solid #2087ac;
+      color: #1565c0;
+      padding: 0.9rem 1em 0.8rem 1em;
+      border-radius: 10px;
+      font-size: 0.98em;
+      margin: 0.7rem 0 0 0;
+      font-weight: 500;
+    }
+    .info-box strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #186a33;
+    }
+    @media (max-width: 799px) {
+      main { flex-direction: column; }
+      aside { display: none !important; }
+      section { padding: 0.3em 0.2em 1.5em 0.2em; }
+      .modal-content { max-width: 99vw; }
+    }
+    @media (max-width: 540px) {
+      .modal-content, .card { max-width: 99vw; border-radius: 13px;}
+      .modal-body { padding: 11px 5px; }
+      .mobile-pdf-options { padding: 7px; }
     }
   </style>
 </head>
 <body>
   <div id="app">
     <header>
-      <h1>Railway Crew Resource Hub</h1>
+      Railway Crew Resource Hub
     </header>
     <main>
       <aside>
@@ -458,127 +424,99 @@
         </ul>
       </aside>
       <section>
-        <input v-model="searchText" placeholder="Search files..." />
-        <div v-if="filteredFiles.length === 0">No files found.</div>
+        <!-- BEAUTIFIED SEARCH BAR -->
+        <div class="search-area">
+          <form class="enhanced-search" @submit.prevent>
+            <span class="search-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <circle cx="11" cy="11" r="7" stroke="#2e7d32" stroke-width="2"/>
+                <path d="M20 20L17 17" stroke="#2e7d32" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <input v-model="searchText" type="search" placeholder="Search files, descriptions, or types..." autocomplete="off" />
+          </form>
+        </div>
+        <!-- Files list -->
+        <div v-if="filteredFiles.length === 0" style="margin:2rem auto; text-align:center; color:#8e9ea6; font-size:1.23em;">No files found.</div>
         <div v-for="file in filteredFiles" :key="file.file" class="card">
           <div class="thumbnail-container">
             <template v-if="file.type === 'pdf'">
-              <img 
-                v-if="file.pdfThumbnail" 
-                :src="file.pdfThumbnail" 
-                alt="PDF Thumbnail"
-              />
-              <div v-else-if="file.loadingThumbnail" class="loading-thumbnail">
-                Loading PDF...
-              </div>
-              <img 
-                v-else 
-                :src="file.thumbnail" 
-                alt="Default PDF Thumbnail"
-                :class="{ 'thumbnail-loading': file.thumbnailGenerationStarted }"
-              />
+              <img v-if="file.pdfThumbnail" :src="file.pdfThumbnail" alt="PDF Thumbnail" />
+              <div v-else-if="file.loadingThumbnail" class="loading-thumbnail">Loading PDF...</div>
+              <img v-else :src="file.thumbnail" alt="Default PDF Thumbnail" :class="{ 'thumbnail-loading': file.thumbnailGenerationStarted }" />
             </template>
-            <img 
-              v-else 
-              :src="file.thumbnail" 
-              alt="Thumbnail"
-            />
+            <img v-else :src="file.thumbnail" alt="Thumbnail" />
           </div>
           <div class="card-content">
-            <h4>{{ file.title }}</h4>
+            <h4 :title="file.title">{{ file.title }}</h4>
             <div class="actions">
-              <button class="btn btn-view" @click="viewFile(file)">
-                👁️ View
-              </button>
-              <button class="btn btn-download" @click="downloadFile(file)">
-                📥 Download
-              </button>
+              <button class="btn btn-view" @click="viewFile(file)">👁️ View</button>
+              <button class="btn btn-download" @click="downloadFile(file)">📥 Download</button>
             </div>
           </div>
         </div>
       </section>
     </main>
-
-    <!-- FIXED Modal with Opera GX Protection -->
-    <div v-if="viewingFile && modalReady" class="modal-overlay" @click="closeModal">
+    <!-- Modal -->
+    <div v-if="viewingFile" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <h3>{{ viewingFile.title }}</h3>
+          <span>{{ viewingFile.title }}</span>
           <button class="close-btn" @click="closeModal">&times;</button>
         </div>
         <div class="modal-body">
           <div v-if="viewingFile.type === 'pdf'" class="mobile-pdf-options">
             <h4>📱 Mobile PDF Viewing</h4>
             <p>Choose the best viewing method for your Android device:</p>
-            
             <div class="option-card">
-              <h5>
-                🚀 Instant Access 
-                <span class="recommended-badge">RECOMMENDED</span>
-              </h5>
-              <p>Open directly in your device's default PDF app or browser. Works reliably on all Android browsers including Chrome and Opera GX.</p>
+              <h5>🚀 Instant Access <span class="recommended-badge">RECOMMENDED</span></h5>
+              <p>
+                Open directly in your device's default PDF app or browser. Works reliably on all Android browsers including Chrome and Opera GX.
+              </p>
               <div class="button-group">
                 <button class="btn btn-view" @click="openInNewTab(viewingFile.file)">
-                  🔗 Open in New Tab
+                  <svg viewBox="0 0 24 24"><path d="M14 3h7v7M10 14L21 3M21 21H3V3h7"/></svg>
+                  Open in New Tab
                 </button>
                 <button class="btn btn-download" @click="downloadAndClose(viewingFile)">
-                  📥 Download PDF
+                  <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l6-6m-6 6l-6-6m6 6v6"/></svg>
+                  Download PDF
                 </button>
               </div>
             </div>
-
             <div class="option-card">
               <h5>🔧 Alternative Viewers</h5>
-              <p>These may work but can fail on mobile browsers (like the face icon or error you experienced).</p>
+              <p>
+                These may work but can fail on mobile browsers (like the face icon or error you experienced).
+              </p>
               <div class="button-group">
                 <button class="btn btn-view" @click="tryMozillaViewer">
-                  🦊 Mozilla PDF.js
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#FF9400" /><path d="M9 15l2.5-2 2.5 2" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Mozilla PDF.js
                 </button>
                 <button class="btn btn-view" @click="tryDirectView">
-                  📋 Direct Browser View
+                  <svg viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="3" stroke="#fff" stroke-width="1.5" fill="#4caf50"/></svg>
+                  Direct Browser View
                 </button>
               </div>
             </div>
-            
             <div class="info-box">
               <strong>📱 Why Google Viewer Fails on Android:</strong>
               Google Docs Viewer has known issues with mobile browsers, especially Android Chrome and Opera GX. It frequently returns empty responses (204 errors) or shows placeholder icons instead of PDF content. This is a long-standing, unfixed issue with Google's service.
             </div>
           </div>
-          
-          <img 
-            v-else-if="viewingFile.type === 'image'"
-            :src="viewingFile.file"
-            :alt="viewingFile.title"
-            class="modal-image"
-          />
-          
-          <video 
-            v-else-if="viewingFile.type === 'video'"
-            :src="viewingFile.file"
-            controls
-            class="modal-video"
-          >
-            Your browser does not support the video tag.
-          </video>
-          
-          <audio 
-            v-else-if="viewingFile.type === 'audio'"
-            :src="viewingFile.file"
-            controls
-            class="modal-audio"
-          >
-            Your browser does not support the audio element.
-          </audio>
+          <img v-else-if="viewingFile.type === 'image'" :src="viewingFile.file"
+            :alt="viewingFile.title" class="modal-image" style="max-width:100%;border-radius:12px;display:block;margin:1em auto;"/>
+          <video v-else-if="viewingFile.type === 'video'" :src="viewingFile.file" controls
+            class="modal-video"></video>
+          <audio v-else-if="viewingFile.type === 'audio'" :src="viewingFile.file" controls
+            class="modal-audio"></audio>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- FIXED Vue Script with Opera GX Protection -->
   <script>
     const { createApp } = Vue;
-
     createApp({
       data() {
         return {
@@ -586,9 +524,7 @@
           selectedCategory: 'All',
           searchText: '',
           processedPdfs: new Set(),
-          viewingFile: null,
-          modalReady: false,  // NEW: Prevents premature modal opening
-          appInitialized: false  // NEW: Track app initialization
+          viewingFile: null
         };
       },
       computed: {
@@ -601,21 +537,16 @@
             const matchText = f.title.toLowerCase().includes(this.searchText.toLowerCase());
             return matchCat && matchText;
           });
-
-          // Only process thumbnails if app is fully initialized
-          if (this.appInitialized) {
-            this.$nextTick(() => {
-              filtered.forEach(file => {
-                if (file.type === 'pdf' && 
-                    !file.pdfThumbnail && 
-                    !file.loadingThumbnail && 
-                    !this.processedPdfs.has(file.file)) {
-                  this.loadPDFThumbnail(file);
-                }
-              });
+          this.$nextTick(() => {
+            filtered.forEach(file => {
+              if (file.type === 'pdf' && 
+                  !file.pdfThumbnail && 
+                  !file.loadingThumbnail && 
+                  !this.processedPdfs.has(file.file)) {
+                this.loadPDFThumbnail(file);
+              }
             });
-          }
-
+          });
           return filtered;
         }
       },
@@ -627,7 +558,6 @@
           try {
             const response = await fetch('data/docs.json');
             this.files = await response.json();
-            
             this.files.forEach(file => {
               if (file.type === 'pdf') {
                 this.$set(file, 'pdfThumbnail', null);
@@ -635,46 +565,24 @@
                 this.$set(file, 'thumbnailGenerationStarted', false);
               }
             });
-            
-            // Mark app as fully initialized after files are loaded
-            this.appInitialized = true;
           } catch (err) {
             console.error('Could not load docs.json:', err);
-            // Still mark as initialized even if files fail to load
-            this.appInitialized = true;
           }
         },
         async loadPDFThumbnail(file) {
-          if (file.type === 'pdf' && 
-              !file.pdfThumbnail && 
-              !file.loadingThumbnail && 
-              !this.processedPdfs.has(file.file)) {
-            
+          if (file.type === 'pdf' && !file.pdfThumbnail && !file.loadingThumbnail && !this.processedPdfs.has(file.file)) {
             this.processedPdfs.add(file.file);
             file.loadingThumbnail = true;
             file.thumbnailGenerationStarted = true;
-            
             try {
               const thumbnail = await generatePDFThumbnail(file.file);
-              if (thumbnail) {
-                file.pdfThumbnail = thumbnail;
-              }
-            } catch (error) {
-              console.error('Failed to load PDF thumbnail for', file.file, ':', error);
-            } finally {
-              file.loadingThumbnail = false;
-            }
+              if (thumbnail) file.pdfThumbnail = thumbnail;
+            } catch (error) { }
+            file.loadingThumbnail = false;
           }
         },
         viewFile(file) {
-          // FIXED: Add additional safety checks
-          if (!this.appInitialized || !file) {
-            console.log('App not ready or invalid file');
-            return;
-          }
-          
           this.viewingFile = file;
-          this.modalReady = true;  // Enable modal display
           document.body.style.overflow = 'hidden';
         },
         openInNewTab(fileUrl) {
@@ -682,8 +590,7 @@
         },
         tryMozillaViewer() {
           const fullUrl = new URL(this.viewingFile.file, window.location.origin).href;
-          const viewerUrl = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fullUrl)}`;
-          window.open(viewerUrl, '_blank');
+          window.open(`https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fullUrl)}`, '_blank');
         },
         tryDirectView() {
           window.open(this.viewingFile.file, '_blank');
@@ -694,7 +601,6 @@
         },
         closeModal() {
           this.viewingFile = null;
-          this.modalReady = false;  // Reset modal state
           document.body.style.overflow = '';
         },
         async downloadFile(file) {
@@ -703,20 +609,15 @@
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const fileName = this.getFileName(file.file);
-            
             const tempLink = document.createElement('a');
             tempLink.href = url;
             tempLink.download = fileName;
             tempLink.style.display = 'none';
-            
             document.body.appendChild(tempLink);
             tempLink.click();
             document.body.removeChild(tempLink);
-            
             window.URL.revokeObjectURL(url);
-            
           } catch (error) {
-            console.error('Download failed:', error);
             const tempLink = document.createElement('a');
             tempLink.href = file.file;
             tempLink.download = this.getFileName(file.file);
@@ -726,25 +627,15 @@
             document.body.removeChild(tempLink);
           }
         },
-        getFileName(filePath) {
-          return filePath.split('/').pop();
-        }
+        getFileName(filePath) { return filePath.split('/').pop(); }
       },
       mounted() {
-        // FIXED: Add initialization delay for Opera GX
-        setTimeout(() => {
-          this.loadFiles();
-        }, 100);  // Small delay to ensure Opera GX is ready
-        
+        this.loadFiles();
         document.addEventListener('keydown', (e) => {
-          if (e.key === 'Escape' && this.viewingFile && this.modalReady) {
+          if (e.key === 'Escape' && this.viewingFile) {
             this.closeModal();
           }
         });
-      },
-      // FIXED: Add cleanup for browser-specific issues
-      beforeUnmount() {
-        document.body.style.overflow = '';
       }
     }).mount('#app');
   </script>
