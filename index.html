@@ -127,33 +127,42 @@
     section.content-area {
       flex: 1;
       min-width: 0;
-      padding: 0;
-      overflow-y: auto;
       display: flex;
       flex-direction: column;
       position: relative;
     }
 
-    /* STICKY SEARCH BAR on mobile */
+    /* STICKY SEARCH BAR - now properly fixed on mobile */
     .search-area {
       width: 100%;
-      margin-bottom: 1rem;
+      margin: 0;
       padding: 1rem 0.5rem;
       display: flex;
       justify-content: center;
       align-items: center;
       background: #f5f7fa;
+      border-bottom: 1px solid #e0e0e0;
+      /* STICKY POSITIONING FOR MOBILE */
       position: sticky;
       top: 0;
       z-index: 1200;
     }
     
-    /* Desktop search area */
+    /* Mobile specific sticky positioning */
+    @media (max-width: 799px) {
+      .search-area {
+        position: sticky;
+        top: 0;
+        z-index: 1200;
+      }
+    }
+    
+    /* Desktop search area - normal flow */
     @media (min-width: 800px) {
       .search-area {
-        position: static;
-        margin-top: 1.2rem;
-        margin-bottom: 2rem;
+        position: relative;
+        margin: 1.2rem 0 2rem 0;
+        border-bottom: none;
       }
     }
     
@@ -196,15 +205,17 @@
       font-size: 1.27em;
     }
 
-    /* Files container with proper padding */
+    /* Files container with scrollable content */
     .files-container {
-      padding: 0 0.5em 2em 0.5em;
       flex: 1;
+      overflow-y: auto;
+      padding: 0.5rem 0.5rem 2rem 0.5rem;
+      -webkit-overflow-scrolling: touch;
     }
     
     @media (min-width: 800px) {
       .files-container {
-        padding: 0.6em 0.5em 2em 0.5em;
+        padding: 0 0.5rem 2rem 0.5rem;
       }
     }
 
@@ -576,7 +587,7 @@
 
       <!-- Content area -->
       <section class="content-area">
-        <!-- STICKY Search box on mobile -->
+        <!-- STICKY Search box (both mobile and desktop) -->
         <div class="search-area">
           <form class="enhanced-search" @submit.prevent>
             <span class="search-icon">
@@ -589,7 +600,7 @@
           </form>
         </div>
 
-        <!-- Files container -->
+        <!-- Scrollable files container -->
         <div class="files-container">
           <div v-if="filteredFiles.length === 0" style="margin:2rem auto; text-align:center; color:#8e9ea6; font-size:1.23em;">
             No files found.
