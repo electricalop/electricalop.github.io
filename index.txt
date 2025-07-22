@@ -13,10 +13,12 @@
   <script src="js/pdf-thumbnail.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Inter:400,600,700&display=swap" rel="stylesheet" />
   <style>
-    html, body {
-      margin: 0; padding: 0; height: 100%;
+    html, body { height: 100%; }
+    body {
+      margin: 0;
       font-family: 'Inter', Arial, sans-serif;
       background: #f5f7fa;
+      min-height: 100vh;
       color: #28303d;
     }
     #app {
@@ -24,11 +26,12 @@
       flex-direction: column;
       min-height: 100vh;
     }
-    /* HEADER */
+    
+    /* HEADER with burger menu */
     header {
       background: linear-gradient(90deg, #388e3c 0%, #43a047 100%);
-      color: white;
-      padding: 1.1rem 1.5rem;
+      color: #fff;
+      padding: 1.1rem;
       font-size: 1.2rem;
       font-weight: 600;
       box-shadow: 0 2px 6px rgba(70,150,100,0.07);
@@ -39,12 +42,13 @@
       position: relative;
       z-index: 1201;
     }
-    /* Burger menu icon */
+    
+    /* Burger menu icon (only visible on mobile) */
     .burger-icon {
       width: 26px;
       height: 20px;
       cursor: pointer;
-      display: none; /* hidden on desktop */
+      display: none;
       flex-direction: column;
       justify-content: space-between;
     }
@@ -53,34 +57,41 @@
       background: white;
       border-radius: 2px;
     }
-    /* Show burger icon only on small screens */
+    
+    /* Show burger only on mobile */
     @media (max-width: 799px) {
       .burger-icon {
         display: flex;
       }
+      header {
+        text-align: left;
+      }
     }
-    /* MAIN layout */
+    
     main {
-      flex: 1;
       display: flex;
+      flex: 1;
       overflow: hidden;
       background: #f5f7fa;
     }
-    /* Sidebar for desktop */
+    
+    /* Desktop sidebar */
     aside.sidebar-desktop {
       width: 240px;
-      background: white;
+      background: #ffffff;
       border-right: 1.5px solid #e4e4e4;
       padding: 1rem;
       overflow-y: auto;
       flex-shrink: 0;
       display: block;
     }
+    
     @media (max-width: 799px) {
       aside.sidebar-desktop {
         display: none;
       }
     }
+    
     aside h3 {
       margin-top: 0;
       font-size: 1rem;
@@ -110,7 +121,8 @@
       background: #e8f5e9;
       color: #2e7d32;
     }
-    /* Section content */
+    
+    /* Content section */
     section.content-area {
       flex: 1;
       min-width: 0;
@@ -120,7 +132,8 @@
       flex-direction: column;
       position: relative;
     }
-    /* Side menu tray for mobile */
+
+    /* Mobile side tray */
     .mobile-side-tray {
       position: fixed;
       top: 0; left: 0;
@@ -136,18 +149,22 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
+      -webkit-overflow-scrolling: touch;
     }
     .mobile-side-tray.open {
       transform: translateX(0);
     }
-    /* Mobile overlay behind tray */
+    
+    /* Mobile overlay */
     .mobile-overlay {
       position: fixed;
       top: 0; left: 0;
-      width: 100vw; height: 100vh;
+      width: 100vw;
+      height: 100vh;
       background: rgba(0,0,0,0.3);
       z-index: 1299;
     }
+    
     /* Mobile side tray elements */
     .mobile-side-tray h3 {
       margin-top: 0;
@@ -164,7 +181,7 @@
       margin: 1rem 0 0 0;
     }
     .mobile-side-tray li {
-      padding: 10px 10px;
+      padding: 10px;
       margin-bottom: 10px;
       cursor: pointer;
       border-radius: 8px;
@@ -183,11 +200,7 @@
       color: #2e7d32;
     }
 
-    /* Modern search box and cards styles… (your existing styles, shortened here for brevity) */
-    /* Place your existing .search-area, .enhanced-search, .card, .card-pdf, .card-audio, .card-video, .card-image, btn styles etc here as before */
-
-    /* For demonstration simplicity, I will include the card colors and basic styling: */
-
+    /* Search box */
     .search-area {
       width: 100%;
       margin-bottom: 2rem;
@@ -207,7 +220,6 @@
       align-items: center;
       overflow: hidden;
       transition: box-shadow 0.2s, border 0.2s;
-      padding-left: 10px;
     }
     .enhanced-search:focus-within {
       box-shadow: 0 4px 16px rgba(46,125,50,0.16);
@@ -227,7 +239,16 @@
     .enhanced-search input::placeholder {
       color: #a8b2bb;
     }
+    .enhanced-search .search-icon {
+      margin-left: 10px;
+      margin-right: 9px;
+      display: flex;
+      align-items: center;
+      color: #2e7d32;
+      font-size: 1.27em;
+    }
 
+    /* Card styles with type coloring */
     .card {
       background: #fff;
       padding: 0.8rem 1.1rem;
@@ -243,19 +264,19 @@
       transition: background 0.16s;
     }
     .card-pdf {
-      background: #fff3e0;
+      background: #fff3e0; /* Kesari/orange */
       border-left: 5px solid #ff9800;
     }
     .card-audio {
-      background: #fff9c4;
+      background: #fff9c4; /* Yellow */
       border-left: 5px solid #fbc02d;
     }
     .card-video {
-      background: #fce4ec;
+      background: #fce4ec; /* Pink */
       border-left: 5px solid #e91e63;
     }
     .card-image {
-      background: #e3f2fd;
+      background: #e3f2fd; /* Sky blue */
       border-left: 5px solid #0288d1;
     }
     .thumbnail-container {
@@ -269,6 +290,11 @@
       overflow: hidden;
       border: 1px solid #e0e0e0;
       flex-shrink: 0;
+    }
+    .thumbnail-loading {
+      font-size: 13px;
+      color: #888;
+      text-align: center;
     }
     .card img {
       width: 74px;
@@ -313,10 +339,10 @@
       transition: box-shadow 0.13s, background 0.12s;
       box-shadow: 0 1.5px 3.5px 0 rgba(40,140,90,0.07);
       outline: none;
-      color: white;
     }
     .btn-view {
       background-color: #2e7d32;
+      color: #fff;
     }
     .btn-view:hover, .btn-view:focus {
       background-color: #207020;
@@ -324,29 +350,194 @@
     }
     .btn-download {
       background-color: #1976d2;
+      color: #fff;
     }
     .btn-download:hover, .btn-download:focus {
       background-color: #155fc0;
       box-shadow: 0 2px 7px rgba(25,118,210,0.1);
     }
+    .thumbnail-loading { opacity: 0.7; }
     
-    /* Modal and other styles omitted for brevity, keep your previous ones unchanged */
-
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(22, 31, 46, 0.55);
+      z-index: 1200;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      overflow-y: auto;
+      padding: 2vw 0.2rem;
+      box-sizing: border-box;
+    }
+    .modal-content {
+      background: #fff;
+      border-radius: 17px;
+      width: 99vw;
+      max-width: 450px;
+      min-width: 0;
+      padding: 0;
+      box-shadow: 0 6px 30px rgba(10,30,60,0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      margin-bottom: 2vw;
+    }
+    .modal-header {
+      background: linear-gradient(90deg, #378e63 0%, #228940 100%);
+      color: #fff;
+      padding: 0.85em 1.1em;
+      font-size: 1.02em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 17px 17px 0 0;
+      font-weight: 600;
+    }
+    .modal-header button.close-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.8em;
+      cursor: pointer;
+      transition: color 0.1s;
+    }
+    .modal-header button.close-btn:hover,
+    .modal-header button.close-btn:focus {
+      color: #eafae6;
+    }
+    .modal-body {
+      background: #f5f7fa;
+      padding: 1.2em;
+      overflow-y: auto;
+      max-height: 70vh;
+      min-height: 190px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .mobile-pdf-options h4 {
+      font-size: 1.2em;
+      font-weight: 700;
+      color: #222;
+      margin: 8px 0 2px 0;
+    }
+    .mobile-pdf-options > p {
+      color: #466060;
+      margin-bottom: 11px;
+      font-size: 1em;
+      margin-top: 0;
+    }
+    .option-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1.5px 7px rgba(30,120,60,0.05);
+      border: 1.2px solid #dee7df;
+      margin-bottom: 1.25rem;
+      padding: 1rem 1rem 0.3rem 1rem;
+    }
+    .option-card:last-of-type { margin-bottom: 1rem; }
+    .option-card h5 {
+      margin: 0 0 0.6em 0;
+      color: #347e54;
+      font-size: 1em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .recommended-badge {
+      display: inline-block;
+      background: #43a047;
+      color: #fff;
+      font-size: 0.86em;
+      padding: 2px 8px;
+      border-radius: 9px;
+      margin-left: 8px;
+      letter-spacing: 1px;
+      font-weight: 600;
+      text-shadow: 0 1px 1px rgba(30,130,80,0.06);
+    }
+    .option-card p {
+      color: #406664;
+      margin: 0 0 0.7em 0;
+      font-size: 0.98em;
+      letter-spacing: 0.1px;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 3px;
+    }
+    .option-card .btn {
+      min-width: 140px;
+      padding: 8px 0;
+      font-size: 0.99em;
+      flex: 1 1 auto;
+    }
+    .option-card .btn-view {
+      background: #43a047;
+      color: #fff !important;
+    }
+    .option-card .btn-view:hover, .option-card .btn-view:focus {
+      background: #228940;
+      color: #fff !important;
+    }
+    .option-card .btn-download {
+      background: #1976d2;
+      color: #fff !important;
+    }
+    .option-card .btn-download:hover, .option-card .btn-download:focus {
+      background: #125abe;
+      color: #fff !important;
+    }
+    .option-card .btn-view svg,
+    .option-card .btn-download svg {
+      vertical-align: middle;
+      margin-right: 4px;
+      margin-bottom: 2px;
+      width: 1.15em;
+      height: 1.1em;
+      fill: currentColor;
+    }
+    .info-box {
+      background: #e9f5fb;
+      border: 1.3px solid #2087ac;
+      color: #1565c0;
+      padding: 0.9rem 1em 0.8rem 1em;
+      border-radius: 10px;
+      font-size: 0.98em;
+      margin: 0.7rem 0 0 0;
+      font-weight: 500;
+    }
+    .info-box strong {
+      display: block;
+      margin-bottom: 5px;
+      color: #186a33;
+    }
+    
+    @media (max-width: 540px) {
+      .modal-content, .card { max-width: 99vw; border-radius: 13px;}
+      .modal-body { padding: 11px 5px; }
+      .mobile-pdf-options { padding: 7px; }
+    }
   </style>
 </head>
 <body>
   <div id="app">
+    <!-- Header with burger menu -->
     <header>
-      <div class="burger-icon" @click="sideMenuOpen = true" title="Open filters" v-show="isMobile">
+      <div class="burger-icon" @click="sideMenuOpen = true">
         <div></div>
         <div></div>
         <div></div>
       </div>
       Railway Crew Resource Hub
     </header>
+    
     <main>
       <!-- Desktop sidebar -->
-      <aside class="sidebar-desktop" v-show="!isMobile">
+      <aside class="sidebar-desktop">
         <h3>File Types</h3>
         <ul>
           <li :class="{ active: selectedCategory === 'All' }" @click="selectCategory('All')">All</li>
@@ -356,7 +547,9 @@
         </ul>
       </aside>
 
+      <!-- Content area -->
       <section class="content-area">
+        <!-- Search box -->
         <div class="search-area">
           <form class="enhanced-search" @submit.prevent>
             <span class="search-icon">
@@ -369,6 +562,7 @@
           </form>
         </div>
 
+        <!-- Files list -->
         <div v-if="filteredFiles.length === 0" style="margin:2rem auto; text-align:center; color:#8e9ea6; font-size:1.23em;">
           No files found.
         </div>
@@ -404,7 +598,7 @@
       </ul>
     </nav>
 
-    <!-- Modal code unchanged -->
+    <!-- Modal -->
     <div v-if="viewingFile" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -412,12 +606,57 @@
           <button class="close-btn" @click="closeModal">&times;</button>
         </div>
         <div class="modal-body">
-          <!-- Your existing modal content here -->
-          <!-- For brevity, omitted -->
+          <div v-if="viewingFile.type === 'pdf'" class="mobile-pdf-options">
+            <h4>📱 Mobile PDF Viewing</h4>
+            <p>Choose the best viewing method for your Android device:</p>
+            <div class="option-card">
+              <h5>🚀 Instant Access <span class="recommended-badge">RECOMMENDED</span></h5>
+              <p>
+                Open directly in your device's default PDF app or browser. Works reliably on all Android browsers including Chrome and Opera GX.
+              </p>
+              <div class="button-group">
+                <button class="btn btn-view" @click="openInNewTab(viewingFile.file)">
+                  <svg viewBox="0 0 24 24"><path d="M14 3h7v7M10 14L21 3M21 21H3V3h7"/></svg>
+                  Open in New Tab
+                </button>
+                <button class="btn btn-download" @click="downloadAndClose(viewingFile)">
+                  <svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l6-6m-6 6l-6-6m6 6v6"/></svg>
+                  Download PDF
+                </button>
+              </div>
+            </div>
+            <div class="option-card">
+              <h5>🔧 Alternative Viewers</h5>
+              <p>
+                These may work but can fail on mobile browsers (like the face icon or error you experienced).
+              </p>
+              <div class="button-group">
+                <button class="btn btn-view" @click="tryMozillaViewer">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="#FF9400" /><path d="M9 15l2.5-2 2.5 2" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Mozilla PDF.js
+                </button>
+                <button class="btn btn-view" @click="tryDirectView">
+                  <svg viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="3" stroke="#fff" stroke-width="1.5" fill="#4caf50"/></svg>
+                  Direct Browser View
+                </button>
+              </div>
+            </div>
+            <div class="info-box">
+              <strong>📱 Why Google Viewer Fails on Android:</strong>
+              Google Docs Viewer has known issues with mobile browsers, especially Android Chrome and Opera GX. It frequently returns empty responses (204 errors) or shows placeholder icons instead of PDF content. This is a long-standing, unfixed issue with Google's service.
+            </div>
+          </div>
+          <img v-else-if="viewingFile.type === 'image'" :src="viewingFile.file"
+            :alt="viewingFile.title" class="modal-image" style="max-width:100%;border-radius:12px;display:block;margin:1em auto;"/>
+          <video v-else-if="viewingFile.type === 'video'" :src="viewingFile.file" controls
+            class="modal-video"></video>
+          <audio v-else-if="viewingFile.type === 'audio'" :src="viewingFile.file" controls
+            class="modal-audio"></audio>
         </div>
       </div>
     </div>
   </div>
+  
   <script>
     const { createApp } = Vue;
     createApp({
@@ -428,8 +667,7 @@
           searchText: '',
           processedPdfs: new Set(),
           viewingFile: null,
-          sideMenuOpen: false,
-          isMobile: false,
+          sideMenuOpen: false
         };
       },
       computed: {
@@ -437,11 +675,22 @@
           return [...new Set(this.files.map(f => f.category))].sort();
         },
         filteredFiles() {
-          return this.files.filter(f => {
-            const matchesCategory = this.selectedCategory === 'All' || f.category === this.selectedCategory;
-            const matchesSearch = f.title.toLowerCase().includes(this.searchText.toLowerCase());
-            return matchesCategory && matchesSearch;
+          const filtered = this.files.filter(f => {
+            const matchCat = this.selectedCategory === 'All' || f.category === this.selectedCategory;
+            const matchText = f.title.toLowerCase().includes(this.searchText.toLowerCase());
+            return matchCat && matchText;
           });
+          this.$nextTick(() => {
+            filtered.forEach(file => {
+              if (file.type === 'pdf' && 
+                  !file.pdfThumbnail && 
+                  !file.loadingThumbnail && 
+                  !this.processedPdfs.has(file.file)) {
+                this.loadPDFThumbnail(file);
+              }
+            });
+          });
+          return filtered;
         }
       },
       methods: {
@@ -450,83 +699,91 @@
         },
         async loadFiles() {
           try {
-            const res = await fetch('data/docs.json');
-            this.files = await res.json();
+            const response = await fetch('data/docs.json');
+            this.files = await response.json();
+            this.files.forEach(file => {
+              if (file.type === 'pdf') {
+                this.$set(file, 'pdfThumbnail', null);
+                this.$set(file, 'loadingThumbnail', false);
+                this.$set(file, 'thumbnailGenerationStarted', false);
+              }
+            });
           } catch (err) {
             console.error('Could not load docs.json:', err);
+          }
+        },
+        async loadPDFThumbnail(file) {
+          if (file.type === 'pdf' && !file.pdfThumbnail && !file.loadingThumbnail && !this.processedPdfs.has(file.file)) {
+            this.processedPdfs.add(file.file);
+            file.loadingThumbnail = true;
+            file.thumbnailGenerationStarted = true;
+            try {
+              const thumbnail = await generatePDFThumbnail(file.file);
+              if (thumbnail) file.pdfThumbnail = thumbnail;
+            } catch (error) { }
+            file.loadingThumbnail = false;
           }
         },
         viewFile(file) {
           this.viewingFile = file;
           document.body.style.overflow = 'hidden';
         },
-        downloadFile(file) {
-          const a = document.createElement('a');
-          a.href = file.file;
-          a.download = file.file.split('/').pop();
-          a.style.display = 'none';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
+        openInNewTab(fileUrl) {
+          window.open(fileUrl, '_blank');
+        },
+        tryMozillaViewer() {
+          const fullUrl = new URL(this.viewingFile.file, window.location.origin).href;
+          window.open(`https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(fullUrl)}`, '_blank');
+        },
+        tryDirectView() {
+          window.open(this.viewingFile.file, '_blank');
+        },
+        downloadAndClose(file) {
+          this.downloadFile(file);
+          this.closeModal();
         },
         closeModal() {
           this.viewingFile = null;
           document.body.style.overflow = '';
         },
-        handleResize() {
-          this.isMobile = window.innerWidth < 800;
-          if(!this.isMobile) this.sideMenuOpen = false; /* close mobile menu if switching to desktop */
-        }
+        async downloadFile(file) {
+          try {
+            const response = await fetch(file.file);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const fileName = this.getFileName(file.file);
+            const tempLink = document.createElement('a');
+            tempLink.href = url;
+            tempLink.download = fileName;
+            tempLink.style.display = 'none';
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+            window.URL.revokeObjectURL(url);
+          } catch (error) {
+            const tempLink = document.createElement('a');
+            tempLink.href = file.file;
+            tempLink.download = this.getFileName(file.file);
+            tempLink.style.display = 'none';
+            document.body.appendChild(tempLink);
+            tempLink.click();
+            document.body.removeChild(tempLink);
+          }
+        },
+        getFileName(filePath) { return filePath.split('/').pop(); }
       },
       mounted() {
         this.loadFiles();
-        this.handleResize();
-        window.addEventListener('resize', this.handleResize);
-        document.addEventListener('keydown', e => {
+        document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape' && this.viewingFile) {
             this.closeModal();
           }
-          if(e.key === 'Escape' && this.sideMenuOpen) {
+          if (e.key === 'Escape' && this.sideMenuOpen) {
             this.sideMenuOpen = false;
           }
         });
-      },
-      beforeUnmount() {
-        window.removeEventListener('resize', this.handleResize);
       }
     }).mount('#app');
   </script>
-  <style>
-    /* Mobile side menu styles */
-    .mobile-side-tray {
-      position: fixed;
-      top: 0; left: 0;
-      width: 55vw;
-      max-width: 300px;
-      height: 100vh;
-      background: white;
-      box-shadow: 3px 0 20px rgba(0,0,0,0.15);
-      transform: translateX(-100%);
-      transition: transform 0.3s ease;
-      z-index: 1300;
-      padding: 1rem;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      -webkit-overflow-scrolling: touch;
-    }
-    .mobile-side-tray.open {
-      transform: translateX(0);
-    }
-    /* Overlay behind side menu */
-    .mobile-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0,0,0,0.3);
-      z-index: 1299;
-    }
-  </style>
 </body>
 </html>
