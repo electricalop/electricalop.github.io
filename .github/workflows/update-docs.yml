@@ -1,16 +1,15 @@
 name: Auto-Update docs.json
 
-# Trigger on pushes that affect the assets folder
 on:
   push:
     branches: [ main, master ]
     paths:
-      - 'electricalop/assets/**'
+      - 'assets/**'
   pull_request:
     branches: [ main, master ]
     paths:
-      - 'electricalop/assets/**'
-  workflow_dispatch: # Allow manual triggering
+      - 'assets/**'
+  workflow_dispatch:
 
 jobs:
   update-docs:
@@ -27,21 +26,13 @@ jobs:
       with:
         node-version: '18'
 
-    - name: Navigate to project directory
-      run: cd electricalop
-
-    - name: Make generate-docs.js executable
-      run: chmod +x electricalop/generate-docs.js
-
     - name: Run docs generator script
-      run: |
-        cd electricalop
-        node generate-docs.js
+      run: node generate-docs.js
 
     - name: Check if docs.json changed
       id: verify-changed-files
       run: |
-        if [ -n "$(git status --porcelain)" ]; then
+        if [ -n "$(git status --porcelain data/docs.json)" ]; then
           echo "changed=true" >> $GITHUB_OUTPUT
         else
           echo "changed=false" >> $GITHUB_OUTPUT
@@ -52,6 +43,6 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git add electricalop/data/docs.json
+        git add data/docs.json
         git commit -m "Auto-update docs.json - $(date)"
         git push
