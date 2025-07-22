@@ -41,7 +41,7 @@
       gap: 1rem;
       position: sticky;
       top: 0;
-      z-index: 1201;
+      z-index: 1202;
     }
     
     /* Burger menu icon (only visible on mobile) */
@@ -69,11 +69,75 @@
       }
     }
     
+    /* STICKY SEARCH BAR - positioned OUTSIDE main container */
+    .search-area {
+      width: 100%;
+      margin: 0;
+      padding: 1rem 0.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f5f7fa;
+      border-bottom: 1px solid #e0e0e0;
+      position: sticky;
+      top: 0;
+      z-index: 1201;
+    }
+    
+    /* Desktop search area - normal positioning */
+    @media (min-width: 800px) {
+      .search-area {
+        position: relative;
+        margin: 1.2rem 0 0 0;
+        border-bottom: none;
+        z-index: auto;
+      }
+    }
+    
+    .enhanced-search {
+      width: 100%;
+      max-width: 410px;
+      background: #fff;
+      border-radius: 25px;
+      box-shadow: 0 2px 8px rgba(46,125,50,0.08);
+      border: 2px solid #c8e6c9;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      transition: box-shadow 0.2s, border 0.2s;
+    }
+    .enhanced-search:focus-within {
+      box-shadow: 0 4px 16px rgba(46,125,50,0.16);
+      border-color: #2e7d32;
+    }
+    .enhanced-search input {
+      border: none;
+      outline: none;
+      flex: 1;
+      color: #28303d;
+      background: transparent;
+      font-size: 1.07em;
+      padding: 14px 16px;
+      font-family: inherit;
+      transition: color 0.12s;
+    }
+    .enhanced-search input::placeholder {
+      color: #a8b2bb;
+    }
+    .enhanced-search .search-icon {
+      margin-left: 10px;
+      margin-right: 9px;
+      display: flex;
+      align-items: center;
+      color: #2e7d32;
+      font-size: 1.27em;
+    }
+    
     main {
       display: flex;
       flex: 1;
-      overflow: hidden;
       background: #f5f7fa;
+      min-height: 0;
     }
     
     /* Desktop sidebar */
@@ -123,99 +187,17 @@
       color: #2e7d32;
     }
     
-    /* Content section */
+    /* Content section - now just contains files */
     section.content-area {
       flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
-
-    /* STICKY SEARCH BAR - now properly fixed on mobile */
-    .search-area {
-      width: 100%;
-      margin: 0;
-      padding: 1rem 0.5rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background: #f5f7fa;
-      border-bottom: 1px solid #e0e0e0;
-      /* STICKY POSITIONING FOR MOBILE */
-      position: sticky;
-      top: 0;
-      z-index: 1200;
-    }
-    
-    /* Mobile specific sticky positioning */
-    @media (max-width: 799px) {
-      .search-area {
-        position: sticky;
-        top: 0;
-        z-index: 1200;
-      }
-    }
-    
-    /* Desktop search area - normal flow */
-    @media (min-width: 800px) {
-      .search-area {
-        position: relative;
-        margin: 1.2rem 0 2rem 0;
-        border-bottom: none;
-      }
-    }
-    
-    .enhanced-search {
-      width: 100%;
-      max-width: 410px;
-      background: #fff;
-      border-radius: 25px;
-      box-shadow: 0 2px 8px rgba(46,125,50,0.08);
-      border: 2px solid #c8e6c9;
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-      transition: box-shadow 0.2s, border 0.2s;
-    }
-    .enhanced-search:focus-within {
-      box-shadow: 0 4px 16px rgba(46,125,50,0.16);
-      border-color: #2e7d32;
-    }
-    .enhanced-search input {
-      border: none;
-      outline: none;
-      flex: 1;
-      color: #28303d;
-      background: transparent;
-      font-size: 1.07em;
-      padding: 14px 16px;
-      font-family: inherit;
-      transition: color 0.12s;
-    }
-    .enhanced-search input::placeholder {
-      color: #a8b2bb;
-    }
-    .enhanced-search .search-icon {
-      margin-left: 10px;
-      margin-right: 9px;
-      display: flex;
-      align-items: center;
-      color: #2e7d32;
-      font-size: 1.27em;
-    }
-
-    /* Files container with scrollable content */
-    .files-container {
-      flex: 1;
+      padding: 1rem 0.5rem 2rem 0.5rem;
       overflow-y: auto;
-      padding: 0.5rem 0.5rem 2rem 0.5rem;
       -webkit-overflow-scrolling: touch;
     }
     
     @media (min-width: 800px) {
-      .files-container {
-        padding: 0 0.5rem 2rem 0.5rem;
+      section.content-area {
+        padding: 2rem 0.5rem 2rem 0.5rem;
       }
     }
 
@@ -573,6 +555,19 @@
       Railway Crew Resource Hub
     </header>
     
+    <!-- STICKY Search bar (moved outside main) -->
+    <div class="search-area">
+      <form class="enhanced-search" @submit.prevent>
+        <span class="search-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="#2e7d32" stroke-width="2"/>
+            <path d="M20 20L17 17" stroke="#2e7d32" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <input v-model="searchText" type="search" placeholder="Search files, descriptions, or types..." autocomplete="off" />
+      </form>
+    </div>
+    
     <main>
       <!-- Desktop sidebar -->
       <aside class="sidebar-desktop">
@@ -585,41 +580,25 @@
         </ul>
       </aside>
 
-      <!-- Content area -->
+      <!-- Content area - only contains files now -->
       <section class="content-area">
-        <!-- STICKY Search box (both mobile and desktop) -->
-        <div class="search-area">
-          <form class="enhanced-search" @submit.prevent>
-            <span class="search-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <circle cx="11" cy="11" r="7" stroke="#2e7d32" stroke-width="2"/>
-                <path d="M20 20L17 17" stroke="#2e7d32" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </span>
-            <input v-model="searchText" type="search" placeholder="Search files, descriptions, or types..." autocomplete="off" />
-          </form>
+        <div v-if="filteredFiles.length === 0" style="margin:2rem auto; text-align:center; color:#8e9ea6; font-size:1.23em;">
+          No files found.
         </div>
-
-        <!-- Scrollable files container -->
-        <div class="files-container">
-          <div v-if="filteredFiles.length === 0" style="margin:2rem auto; text-align:center; color:#8e9ea6; font-size:1.23em;">
-            No files found.
+        <div v-for="file in filteredFiles" :key="file.file" :class="['card', 'card-' + file.type]">
+          <div class="thumbnail-container">
+            <template v-if="file.type === 'pdf'">
+              <img v-if="file.pdfThumbnail" :src="file.pdfThumbnail" alt="PDF Thumbnail" />
+              <div v-else-if="file.loadingThumbnail" class="loading-thumbnail">Loading PDF...</div>
+              <img v-else :src="file.thumbnail" alt="Default PDF Thumbnail" :class="{ 'thumbnail-loading': file.thumbnailGenerationStarted }" />
+            </template>
+            <img v-else :src="file.thumbnail" alt="Thumbnail" />
           </div>
-          <div v-for="file in filteredFiles" :key="file.file" :class="['card', 'card-' + file.type]">
-            <div class="thumbnail-container">
-              <template v-if="file.type === 'pdf'">
-                <img v-if="file.pdfThumbnail" :src="file.pdfThumbnail" alt="PDF Thumbnail" />
-                <div v-else-if="file.loadingThumbnail" class="loading-thumbnail">Loading PDF...</div>
-                <img v-else :src="file.thumbnail" alt="Default PDF Thumbnail" :class="{ 'thumbnail-loading': file.thumbnailGenerationStarted }" />
-              </template>
-              <img v-else :src="file.thumbnail" alt="Thumbnail" />
-            </div>
-            <div class="card-content">
-              <h4 :title="file.title">{{ file.title }}</h4>
-              <div class="actions">
-                <button class="btn btn-view" @click="viewFile(file)">👁️ View</button>
-                <button class="btn btn-download" @click="downloadFile(file)">📥 Download</button>
-              </div>
+          <div class="card-content">
+            <h4 :title="file.title">{{ file.title }}</h4>
+            <div class="actions">
+              <button class="btn btn-view" @click="viewFile(file)">👁️ View</button>
+              <button class="btn btn-download" @click="downloadFile(file)">📥 Download</button>
             </div>
           </div>
         </div>
