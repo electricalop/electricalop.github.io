@@ -13,41 +13,53 @@
   <script src="js/pdf-thumbnail.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Inter:400,600,700&display=swap" rel="stylesheet" />
   <style>
-    html, body { 
-      height: 100%; 
-      margin: 0;
-      overflow-x: hidden;
-    }
+    html, body { height: 100%; margin: 0; padding: 0; }
     body {
       font-family: 'Inter', Arial, sans-serif;
       background: #f5f7fa;
       color: #28303d;
     }
-    
     #app {
       display: flex;
       flex-direction: column;
       height: 100vh;
-      position: relative;
     }
     
-    /* STICKY HEADER */
+    /* FIXED HEADER */
     header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
       background: linear-gradient(90deg, #388e3c 0%, #43a047 100%);
       color: #fff;
       padding: 1.1rem;
       font-size: 1.2rem;
       font-weight: 600;
-      box-shadow: 0 2px 6px rgba(70,150,100,0.07);
+      box-shadow: 0 2px 6px rgba(70,150,100,0.15);
       letter-spacing: 1px;
       display: flex;
       align-items: center;
       gap: 1rem;
+      z-index: 1201;
+      height: 60px;
+      box-sizing: border-box;
+    }
+    
+    /* FIXED SEARCH BAR */
+    .search-area {
       position: fixed;
-      top: 0;
+      top: 60px;
       left: 0;
       right: 0;
-      z-index: 1000;
+      background: #f5f7fa;
+      padding: 1rem;
+      border-bottom: 1px solid #e0e0e0;
+      z-index: 1200;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     
     /* Burger menu icon */
@@ -74,13 +86,13 @@
       }
     }
     
-    /* MAIN CONTENT AREA - Account for fixed header */
+    /* MAIN CONTENT WITH TOP MARGIN */
     main {
-      display: flex;
       flex: 1;
-      margin-top: 80px; /* Account for fixed header height */
-      height: calc(100vh - 80px);
+      display: flex;
       overflow: hidden;
+      background: #f5f7fa;
+      margin-top: 140px; /* Space for fixed header + search bar */
     }
     
     /* Desktop sidebar */
@@ -130,76 +142,17 @@
       color: #2e7d32;
     }
     
-    /* CONTENT SECTION with sticky search */
-    .content-section {
+    /* Content section */
+    section.content-area {
       flex: 1;
+      min-width: 0;
+      padding: 1rem 0.5em 2em 0.5em;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      height: 100%;
-      overflow: hidden;
       position: relative;
     }
-    
-    /* STICKY SEARCH BAR - This is the key fix */
-    .search-sticky-container {
-      position: sticky;
-      top: 0;
-      z-index: 500;
-      background: #f5f7fa;
-      padding: 1.2rem 0.5rem 1rem 0.5rem;
-      border-bottom: 1px solid rgba(0,0,0,0.1);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-    
-    .enhanced-search {
-      width: 100%;
-      max-width: 410px;
-      background: #fff;
-      border-radius: 25px;
-      box-shadow: 0 2px 8px rgba(46,125,50,0.08);
-      border: 2px solid #c8e6c9;
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-      transition: box-shadow 0.2s, border 0.2s;
-      margin: 0 auto;
-    }
-    .enhanced-search:focus-within {
-      box-shadow: 0 4px 16px rgba(46,125,50,0.16);
-      border-color: #2e7d32;
-    }
-    .enhanced-search input {
-      border: none;
-      outline: none;
-      flex: 1;
-      color: #28303d;
-      background: transparent;
-      font-size: 1.07em;
-      padding: 14px 16px;
-      font-family: inherit;
-      transition: color 0.12s;
-    }
-    .enhanced-search input::placeholder {
-      color: #a8b2bb;
-    }
-    .enhanced-search .search-icon {
-      margin-left: 10px;
-      margin-right: 9px;
-      display: flex;
-      align-items: center;
-      color: #2e7d32;
-      font-size: 1.27em;
-    }
-    
-    /* SCROLLABLE CONTENT AREA */
-    .scrollable-content {
-      flex: 1;
-      overflow-y: auto;
-      overflow-x: hidden;
-      padding: 0 0.5rem 2rem 0.5rem;
-      -webkit-overflow-scrolling: touch;
-    }
-    
+
     /* Mobile side tray */
     .mobile-side-tray {
       position: fixed;
@@ -222,6 +175,7 @@
       transform: translateX(0);
     }
     
+    /* Mobile overlay */
     .mobile-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -231,6 +185,7 @@
       z-index: 1299;
     }
     
+    /* Mobile side tray elements */
     .mobile-side-tray h3 {
       margin-top: 0;
       font-size: 1.2rem;
@@ -263,6 +218,46 @@
     .mobile-side-tray li:hover:not(.active) {
       background: #e8f5e9;
       color: #2e7d32;
+    }
+
+    /* Enhanced search styling */
+    .enhanced-search {
+      width: 100%;
+      max-width: 410px;
+      background: #fff;
+      border-radius: 25px;
+      box-shadow: 0 2px 8px rgba(46,125,50,0.08);
+      border: 2px solid #c8e6c9;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      transition: box-shadow 0.2s, border 0.2s;
+    }
+    .enhanced-search:focus-within {
+      box-shadow: 0 4px 16px rgba(46,125,50,0.16);
+      border-color: #2e7d32;
+    }
+    .enhanced-search input {
+      border: none;
+      outline: none;
+      flex: 1;
+      color: #28303d;
+      background: transparent;
+      font-size: 1.07em;
+      padding: 14px 16px;
+      font-family: inherit;
+      transition: color 0.12s;
+    }
+    .enhanced-search input::placeholder {
+      color: #a8b2bb;
+    }
+    .enhanced-search .search-icon {
+      margin-left: 10px;
+      margin-right: 9px;
+      display: flex;
+      align-items: center;
+      color: #2e7d32;
+      font-size: 1.27em;
     }
 
     /* Card styles with type coloring */
@@ -381,7 +376,7 @@
       top: 0; left: 0;
       width: 100vw; height: 100vh;
       background: rgba(22, 31, 46, 0.55);
-      z-index: 1200;
+      z-index: 1400;
       display: flex;
       align-items: flex-start;
       justify-content: center;
@@ -532,6 +527,7 @@
       margin-bottom: 5px;
       color: #186a33;
     }
+    
     @media (max-width: 540px) {
       .modal-content, .card { max-width: 99vw; border-radius: 13px;}
       .modal-body { padding: 11px 5px; }
@@ -551,6 +547,19 @@
       Railway Crew Resource Hub
     </header>
     
+    <!-- FIXED SEARCH BAR -->
+    <div class="search-area">
+      <form class="enhanced-search" @submit.prevent>
+        <span class="search-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="#2e7d32" stroke-width="2"/>
+            <path d="M20 20L17 17" stroke="#2e7d32" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <input v-model="searchText" type="search" placeholder="Search files, descriptions, or types..." autocomplete="off" />
+      </form>
+    </div>
+    
     <main>
       <!-- Desktop sidebar -->
       <aside class="sidebar-desktop">
@@ -563,48 +572,33 @@
         </ul>
       </aside>
 
-      <!-- CONTENT SECTION with sticky search -->
-      <div class="content-section">
-        <!-- STICKY SEARCH BAR -->
-        <div class="search-sticky-container">
-          <form class="enhanced-search" @submit.prevent>
-            <span class="search-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <circle cx="11" cy="11" r="7" stroke="#2e7d32" stroke-width="2"/>
-                <path d="M20 20L17 17" stroke="#2e7d32" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </span>
-            <input v-model="searchText" type="search" placeholder="Search files, descriptions, or types..." autocomplete="off" />
-          </form>
+      <!-- Content area -->
+      <section class="content-area">
+        <!-- Files list -->
+        <div v-if="filteredFiles.length === 0" style="margin:2rem auto; text-align:center; color:#8e9ea6; font-size:1.23em;">
+          No files found.
         </div>
-        
-        <!-- SCROLLABLE CONTENT -->
-        <div class="scrollable-content">
-          <div v-if="filteredFiles.length === 0" style="margin:2rem auto; text-align:center; color:#8e9ea6; font-size:1.23em;">
-            No files found.
+        <div v-for="file in filteredFiles" :key="file.file" :class="['card', 'card-' + file.type]">
+          <div class="thumbnail-container">
+            <template v-if="file.type === 'pdf'">
+              <img v-if="file.pdfThumbnail" :src="file.pdfThumbnail" alt="PDF Thumbnail" />
+              <div v-else-if="file.loadingThumbnail" class="loading-thumbnail">Loading PDF...</div>
+              <img v-else :src="file.thumbnail" alt="Default PDF Thumbnail" :class="{ 'thumbnail-loading': file.thumbnailGenerationStarted }" />
+            </template>
+            <img v-else :src="file.thumbnail" alt="Thumbnail" />
           </div>
-          <div v-for="file in filteredFiles" :key="file.file" :class="['card', 'card-' + file.type]">
-            <div class="thumbnail-container">
-              <template v-if="file.type === 'pdf'">
-                <img v-if="file.pdfThumbnail" :src="file.pdfThumbnail" alt="PDF Thumbnail" />
-                <div v-else-if="file.loadingThumbnail" class="loading-thumbnail">Loading PDF...</div>
-                <img v-else :src="file.thumbnail" alt="Default PDF Thumbnail" :class="{ 'thumbnail-loading': file.thumbnailGenerationStarted }" />
-              </template>
-              <img v-else :src="file.thumbnail" alt="Thumbnail" />
-            </div>
-            <div class="card-content">
-              <h4 :title="file.title">{{ file.title }}</h4>
-              <div class="actions">
-                <button class="btn btn-view" @click="viewFile(file)">👁️ View</button>
-                <button class="btn btn-download" @click="downloadFile(file)">📥 Download</button>
-              </div>
+          <div class="card-content">
+            <h4 :title="file.title">{{ file.title }}</h4>
+            <div class="actions">
+              <button class="btn btn-view" @click="viewFile(file)">👁️ View</button>
+              <button class="btn btn-download" @click="downloadFile(file)">📥 Download</button>
             </div>
           </div>
         </div>
-      </div>
+      </section>
     </main>
 
-    <!-- Mobile side menu -->
+    <!-- Mobile side menu overlay and tray -->
     <div v-if="sideMenuOpen" class="mobile-overlay" @click="sideMenuOpen = false"></div>
     <nav :class="['mobile-side-tray', {open: sideMenuOpen}]">
       <h3>File Types</h3>
@@ -674,6 +668,7 @@
       </div>
     </div>
   </div>
+  
   <script>
     const { createApp } = Vue;
     createApp({
