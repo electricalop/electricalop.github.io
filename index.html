@@ -13,21 +13,25 @@
   <script src="js/pdf-thumbnail.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Inter:400,600,700&display=swap" rel="stylesheet" />
   <style>
-    html, body { height: 100%; }
-    body {
+    html, body { 
+      height: 100%; 
       margin: 0;
+      overflow-x: hidden;
+    }
+    body {
       font-family: 'Inter', Arial, sans-serif;
       background: #f5f7fa;
-      min-height: 100vh;
       color: #28303d;
     }
+    
     #app {
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
+      height: 100vh;
+      position: relative;
     }
     
-    /* HEADER with burger menu */
+    /* STICKY HEADER */
     header {
       background: linear-gradient(90deg, #388e3c 0%, #43a047 100%);
       color: #fff;
@@ -39,12 +43,14 @@
       display: flex;
       align-items: center;
       gap: 1rem;
-      position: sticky;
+      position: fixed;
       top: 0;
-      z-index: 1201;
+      left: 0;
+      right: 0;
+      z-index: 1000;
     }
     
-    /* Burger menu icon (only visible on mobile) */
+    /* Burger menu icon */
     .burger-icon {
       width: 26px;
       height: 20px;
@@ -59,7 +65,6 @@
       border-radius: 2px;
     }
     
-    /* Show burger only on mobile */
     @media (max-width: 799px) {
       .burger-icon {
         display: flex;
@@ -69,11 +74,13 @@
       }
     }
     
+    /* MAIN CONTENT AREA - Account for fixed header */
     main {
       display: flex;
       flex: 1;
+      margin-top: 80px; /* Account for fixed header height */
+      height: calc(100vh - 80px);
       overflow: hidden;
-      background: #f5f7fa;
     }
     
     /* Desktop sidebar */
@@ -123,27 +130,25 @@
       color: #2e7d32;
     }
     
-    /* Content section with sticky search */
-    section.content-area {
+    /* CONTENT SECTION with sticky search */
+    .content-section {
       flex: 1;
-      min-width: 0;
       display: flex;
       flex-direction: column;
-      position: relative;
+      height: 100%;
       overflow: hidden;
+      position: relative;
     }
-
-    /* STICKY Search area */
-    .search-area {
+    
+    /* STICKY SEARCH BAR - This is the key fix */
+    .search-sticky-container {
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 500;
       background: #f5f7fa;
       padding: 1.2rem 0.5rem 1rem 0.5rem;
-      border-bottom: 1px solid rgba(46,125,50,0.1);
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
     
     .enhanced-search {
@@ -157,6 +162,7 @@
       align-items: center;
       overflow: hidden;
       transition: box-shadow 0.2s, border 0.2s;
+      margin: 0 auto;
     }
     .enhanced-search:focus-within {
       box-shadow: 0 4px 16px rgba(46,125,50,0.16);
@@ -184,15 +190,16 @@
       color: #2e7d32;
       font-size: 1.27em;
     }
-
-    /* Scrollable content area for cards */
-    .cards-container {
+    
+    /* SCROLLABLE CONTENT AREA */
+    .scrollable-content {
       flex: 1;
-      padding: 0 0.5rem 2rem 0.5rem;
       overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0 0.5rem 2rem 0.5rem;
       -webkit-overflow-scrolling: touch;
     }
-
+    
     /* Mobile side tray */
     .mobile-side-tray {
       position: fixed;
@@ -215,7 +222,6 @@
       transform: translateX(0);
     }
     
-    /* Mobile overlay */
     .mobile-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -225,7 +231,6 @@
       z-index: 1299;
     }
     
-    /* Mobile side tray elements */
     .mobile-side-tray h3 {
       margin-top: 0;
       font-size: 1.2rem;
@@ -276,19 +281,19 @@
       transition: background 0.16s;
     }
     .card-pdf {
-      background: #fff3e0; /* Kesari/orange */
+      background: #fff3e0;
       border-left: 5px solid #ff9800;
     }
     .card-audio {
-      background: #fff9c4; /* Yellow */
+      background: #fff9c4;
       border-left: 5px solid #fbc02d;
     }
     .card-video {
-      background: #fce4ec; /* Pink */
+      background: #fce4ec;
       border-left: 5px solid #e91e63;
     }
     .card-image {
-      background: #e3f2fd; /* Sky blue */
+      background: #e3f2fd;
       border-left: 5px solid #0288d1;
     }
     .thumbnail-container {
@@ -536,17 +541,19 @@
 </head>
 <body>
   <div id="app">
+    <!-- FIXED HEADER -->
     <header>
-      <div class="burger-icon" @click="sideMenuOpen = true" v-show="isMobile">
+      <div class="burger-icon" @click="sideMenuOpen = true">
         <div></div>
         <div></div>
         <div></div>
       </div>
       Railway Crew Resource Hub
     </header>
+    
     <main>
       <!-- Desktop sidebar -->
-      <aside class="sidebar-desktop" v-show="!isMobile">
+      <aside class="sidebar-desktop">
         <h3>File Types</h3>
         <ul>
           <li :class="{ active: selectedCategory === 'All' }" @click="selectCategory('All')">All</li>
@@ -556,9 +563,10 @@
         </ul>
       </aside>
 
-      <section class="content-area">
-        <!-- STICKY Search area -->
-        <div class="search-area">
+      <!-- CONTENT SECTION with sticky search -->
+      <div class="content-section">
+        <!-- STICKY SEARCH BAR -->
+        <div class="search-sticky-container">
           <form class="enhanced-search" @submit.prevent>
             <span class="search-icon">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -570,8 +578,8 @@
           </form>
         </div>
         
-        <!-- Scrollable cards container -->
-        <div class="cards-container">
+        <!-- SCROLLABLE CONTENT -->
+        <div class="scrollable-content">
           <div v-if="filteredFiles.length === 0" style="margin:2rem auto; text-align:center; color:#8e9ea6; font-size:1.23em;">
             No files found.
           </div>
@@ -593,10 +601,10 @@
             </div>
           </div>
         </div>
-      </section>
+      </div>
     </main>
 
-    <!-- Mobile side menu overlay and tray -->
+    <!-- Mobile side menu -->
     <div v-if="sideMenuOpen" class="mobile-overlay" @click="sideMenuOpen = false"></div>
     <nav :class="['mobile-side-tray', {open: sideMenuOpen}]">
       <h3>File Types</h3>
@@ -676,8 +684,7 @@
           searchText: '',
           processedPdfs: new Set(),
           viewingFile: null,
-          sideMenuOpen: false,
-          isMobile: false,
+          sideMenuOpen: false
         };
       },
       computed: {
@@ -780,27 +787,18 @@
             document.body.removeChild(tempLink);
           }
         },
-        getFileName(filePath) { return filePath.split('/').pop(); },
-        handleResize() {
-          this.isMobile = window.innerWidth < 800;
-          if(!this.isMobile) this.sideMenuOpen = false;
-        }
+        getFileName(filePath) { return filePath.split('/').pop(); }
       },
       mounted() {
         this.loadFiles();
-        this.handleResize();
-        window.addEventListener('resize', this.handleResize);
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape' && this.viewingFile) {
             this.closeModal();
           }
-          if(e.key === 'Escape' && this.sideMenuOpen) {
+          if (e.key === 'Escape' && this.sideMenuOpen) {
             this.sideMenuOpen = false;
           }
         });
-      },
-      beforeUnmount() {
-        window.removeEventListener('resize', this.handleResize);
       }
     }).mount('#app');
   </script>
