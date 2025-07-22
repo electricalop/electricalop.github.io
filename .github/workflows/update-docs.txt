@@ -1,0 +1,48 @@
+name: Auto-Update docs.json
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'assets/**'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'assets/**'
+  workflow_dispatch:
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Run docs generator script
+      run: node generate-docs.js
+
+    - name: Check if docs.json changed
+      id: verify-changed-files
+      run: |
+        if [ -n "$(git status --porcelain data/docs.json)" ]; then
+          echo "changed=true" >> $GITHUB_OUTPUT
+        else
+          echo "changed=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Commit and push changes
+      if: steps.verify-changed-files.outputs.changed == 'true'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add data/docs.json
+        git commit -m "Auto-update docs.json - $(date)"
+        git push
