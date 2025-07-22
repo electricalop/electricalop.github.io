@@ -140,7 +140,7 @@
       font-size: 1.27em;
     }
 
-    /* Card style */
+    /* Card style (with type coloring) */
     .card {
       background: #fff;
       padding: 0.8rem 1.1rem;
@@ -153,6 +153,23 @@
       max-width: 650px;
       width: 97%;
       border: 1.2px solid #e0e0e0;
+      transition: background 0.16s;
+    }
+    .card-pdf {
+      background: #f9fef5;
+      border-left: 5px solid #29b668;
+    }
+    .card-audio {
+      background: #f7fcfb;
+      border-left: 5px solid #00796b;
+    }
+    .card-video {
+      background: #f4f8fd;
+      border-left: 5px solid #1976d2;
+    }
+    .card-image {
+      background: #fcf9fa;
+      border-left: 5px solid #f36e6e;
     }
     .thumbnail-container {
       width: 74px;
@@ -231,9 +248,7 @@
       background-color: #155fc0;
       box-shadow: 0 2px 7px rgba(25,118,210,0.1);
     }
-    .thumbnail-loading {
-      opacity: 0.7;
-    }
+    .thumbnail-loading { opacity: 0.7; }
     .modal-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -289,10 +304,8 @@
       overflow-y: auto;
       max-height: 70vh;
       min-height: 190px;
-      /* make all modal content scrollable on mobile */
       -webkit-overflow-scrolling: touch;
     }
-    /* Responsive option panels for VUE modal */
     .mobile-pdf-options h4 {
       font-size: 1.2em;
       font-weight: 700;
@@ -346,7 +359,6 @@
       flex-wrap: wrap;
       margin-bottom: 3px;
     }
-    /* Button alternative colors */
     .option-card .btn {
       min-width: 140px;
       padding: 8px 0;
@@ -438,7 +450,9 @@
         </div>
         <!-- Files list -->
         <div v-if="filteredFiles.length === 0" style="margin:2rem auto; text-align:center; color:#8e9ea6; font-size:1.23em;">No files found.</div>
-        <div v-for="file in filteredFiles" :key="file.file" class="card">
+        <div v-for="file in filteredFiles" :key="file.file"
+             class="card"
+             :class="'card-' + file.type">
           <div class="thumbnail-container">
             <template v-if="file.type === 'pdf'">
               <img v-if="file.pdfThumbnail" :src="file.pdfThumbnail" alt="PDF Thumbnail" />
