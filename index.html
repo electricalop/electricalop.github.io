@@ -27,7 +27,7 @@
       min-height: 100vh;
     }
     
-    /* HEADER with burger menu */
+    /* STICKY HEADER with burger menu */
     header {
       background: linear-gradient(90deg, #388e3c 0%, #43a047 100%);
       color: #fff;
@@ -39,7 +39,8 @@
       display: flex;
       align-items: center;
       gap: 1rem;
-      position: relative;
+      position: sticky;
+      top: 0;
       z-index: 1201;
     }
     
@@ -126,11 +127,85 @@
     section.content-area {
       flex: 1;
       min-width: 0;
-      padding: 0.6em 0.5em 2em 0.5em;
+      padding: 0;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       position: relative;
+    }
+
+    /* STICKY SEARCH BAR on mobile */
+    .search-area {
+      width: 100%;
+      margin-bottom: 1rem;
+      padding: 1rem 0.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f5f7fa;
+      position: sticky;
+      top: 0;
+      z-index: 1200;
+    }
+    
+    /* Desktop search area */
+    @media (min-width: 800px) {
+      .search-area {
+        position: static;
+        margin-top: 1.2rem;
+        margin-bottom: 2rem;
+      }
+    }
+    
+    .enhanced-search {
+      width: 100%;
+      max-width: 410px;
+      background: #fff;
+      border-radius: 25px;
+      box-shadow: 0 2px 8px rgba(46,125,50,0.08);
+      border: 2px solid #c8e6c9;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      transition: box-shadow 0.2s, border 0.2s;
+    }
+    .enhanced-search:focus-within {
+      box-shadow: 0 4px 16px rgba(46,125,50,0.16);
+      border-color: #2e7d32;
+    }
+    .enhanced-search input {
+      border: none;
+      outline: none;
+      flex: 1;
+      color: #28303d;
+      background: transparent;
+      font-size: 1.07em;
+      padding: 14px 16px;
+      font-family: inherit;
+      transition: color 0.12s;
+    }
+    .enhanced-search input::placeholder {
+      color: #a8b2bb;
+    }
+    .enhanced-search .search-icon {
+      margin-left: 10px;
+      margin-right: 9px;
+      display: flex;
+      align-items: center;
+      color: #2e7d32;
+      font-size: 1.27em;
+    }
+
+    /* Files container with proper padding */
+    .files-container {
+      padding: 0 0.5em 2em 0.5em;
+      flex: 1;
+    }
+    
+    @media (min-width: 800px) {
+      .files-container {
+        padding: 0.6em 0.5em 2em 0.5em;
+      }
     }
 
     /* Mobile side tray */
@@ -198,54 +273,6 @@
     .mobile-side-tray li:hover:not(.active) {
       background: #e8f5e9;
       color: #2e7d32;
-    }
-
-    /* Search box */
-    .search-area {
-      width: 100%;
-      margin-bottom: 2rem;
-      margin-top: 1.2rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .enhanced-search {
-      width: 100%;
-      max-width: 410px;
-      background: #fff;
-      border-radius: 25px;
-      box-shadow: 0 2px 8px rgba(46,125,50,0.08);
-      border: 2px solid #c8e6c9;
-      display: flex;
-      align-items: center;
-      overflow: hidden;
-      transition: box-shadow 0.2s, border 0.2s;
-    }
-    .enhanced-search:focus-within {
-      box-shadow: 0 4px 16px rgba(46,125,50,0.16);
-      border-color: #2e7d32;
-    }
-    .enhanced-search input {
-      border: none;
-      outline: none;
-      flex: 1;
-      color: #28303d;
-      background: transparent;
-      font-size: 1.07em;
-      padding: 14px 16px;
-      font-family: inherit;
-      transition: color 0.12s;
-    }
-    .enhanced-search input::placeholder {
-      color: #a8b2bb;
-    }
-    .enhanced-search .search-icon {
-      margin-left: 10px;
-      margin-right: 9px;
-      display: flex;
-      align-items: center;
-      color: #2e7d32;
-      font-size: 1.27em;
     }
 
     /* Card styles with type coloring */
@@ -525,7 +552,7 @@
 </head>
 <body>
   <div id="app">
-    <!-- Header with burger menu -->
+    <!-- STICKY Header with burger menu -->
     <header>
       <div class="burger-icon" @click="sideMenuOpen = true">
         <div></div>
@@ -549,7 +576,7 @@
 
       <!-- Content area -->
       <section class="content-area">
-        <!-- Search box -->
+        <!-- STICKY Search box on mobile -->
         <div class="search-area">
           <form class="enhanced-search" @submit.prevent>
             <span class="search-icon">
@@ -562,24 +589,26 @@
           </form>
         </div>
 
-        <!-- Files list -->
-        <div v-if="filteredFiles.length === 0" style="margin:2rem auto; text-align:center; color:#8e9ea6; font-size:1.23em;">
-          No files found.
-        </div>
-        <div v-for="file in filteredFiles" :key="file.file" :class="['card', 'card-' + file.type]">
-          <div class="thumbnail-container">
-            <template v-if="file.type === 'pdf'">
-              <img v-if="file.pdfThumbnail" :src="file.pdfThumbnail" alt="PDF Thumbnail" />
-              <div v-else-if="file.loadingThumbnail" class="loading-thumbnail">Loading PDF...</div>
-              <img v-else :src="file.thumbnail" alt="Default PDF Thumbnail" :class="{ 'thumbnail-loading': file.thumbnailGenerationStarted }" />
-            </template>
-            <img v-else :src="file.thumbnail" alt="Thumbnail" />
+        <!-- Files container -->
+        <div class="files-container">
+          <div v-if="filteredFiles.length === 0" style="margin:2rem auto; text-align:center; color:#8e9ea6; font-size:1.23em;">
+            No files found.
           </div>
-          <div class="card-content">
-            <h4 :title="file.title">{{ file.title }}</h4>
-            <div class="actions">
-              <button class="btn btn-view" @click="viewFile(file)">👁️ View</button>
-              <button class="btn btn-download" @click="downloadFile(file)">📥 Download</button>
+          <div v-for="file in filteredFiles" :key="file.file" :class="['card', 'card-' + file.type]">
+            <div class="thumbnail-container">
+              <template v-if="file.type === 'pdf'">
+                <img v-if="file.pdfThumbnail" :src="file.pdfThumbnail" alt="PDF Thumbnail" />
+                <div v-else-if="file.loadingThumbnail" class="loading-thumbnail">Loading PDF...</div>
+                <img v-else :src="file.thumbnail" alt="Default PDF Thumbnail" :class="{ 'thumbnail-loading': file.thumbnailGenerationStarted }" />
+              </template>
+              <img v-else :src="file.thumbnail" alt="Thumbnail" />
+            </div>
+            <div class="card-content">
+              <h4 :title="file.title">{{ file.title }}</h4>
+              <div class="actions">
+                <button class="btn btn-view" @click="viewFile(file)">👁️ View</button>
+                <button class="btn btn-download" @click="downloadFile(file)">📥 Download</button>
+              </div>
             </div>
           </div>
         </div>
