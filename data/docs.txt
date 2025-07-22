@@ -1,0 +1,156 @@
+[
+  {
+    "title": "AUD 20250131 WA0006",
+    "category": "audio",
+    "type": "audio",
+    "file": "assets/audios/AUD-20250131-WA0006.aac",
+    "thumbnail": "assets/thumbnails/thumb-audio.jpg"
+  },
+  {
+    "title": "DSC 0009",
+    "category": "image",
+    "type": "image",
+    "file": "assets/images/DSC_0009.JPG",
+    "thumbnail": "assets/images/DSC_0009.JPG"
+  },
+  {
+    "title": "DSC 0044",
+    "category": "image",
+    "type": "image",
+    "file": "assets/images/DSC_0044.JPG",
+    "thumbnail": "assets/images/DSC_0044.JPG"
+  },
+  {
+    "title": "DSC 0047",
+    "category": "image",
+    "type": "image",
+    "file": "assets/images/DSC_0047.JPG",
+    "thumbnail": "assets/images/DSC_0047.JPG"
+  },
+  {
+    "title": "admin circular 2024",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/admin-circular-2024.pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "ANGL TLHD ANGL SIGNAL 1 (2)",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/ANGL-TLHD-ANGL SIGNAL_1 (2).pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "Coverage under OPS where appointment on CG was del 250221 215734",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/Coverage under OPS where appointment on CG was del_250221_215734.pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "East Coast Railway Running Allowance  Minimum Guaranteed Kilometerage (MGK) to running staff",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/East Coast Railway Running Allowance- Minimum Guaranteed Kilometerage (MGK) to running staff.pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "family declaration",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/family declaration.pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "Family declaration 2025 (1)",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/Family declaration 2025 (1).pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "family declaration 23 Jun 2023 21 56 40",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/family declaration 23-Jun-2023 21-56-40.pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "family declaration form",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/family declaration form.pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "Final Advertisement   01 DR 2025",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/Final Advertisement - 01-DR-2025.pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "KUR DPWCS Grouping Failure 01.05.2023",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/KUR_DPWCS_Grouping Failure_01.05.2023.pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "LR PARTICULARS",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/LR PARTICULARS.pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "medha ",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/medha .pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "Pass declaration form",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/Pass declaration form.pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "Renewal of UMID card",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/Renewal of UMID card.pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "Rly servant hours of workand period of rest rule 2005 0 (1)",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/Rly servant hours of workand period of rest rule 2005_0 (1).pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "UPS Print Booklet",
+    "category": "pdf",
+    "type": "pdf",
+    "file": "assets/pdfs/UPS Print Booklet.pdf",
+    "thumbnail": "assets/thumbnails/thumb-pdf.jpg"
+  },
+  {
+    "title": "VID 20250326 WA0012",
+    "category": "video",
+    "type": "video",
+    "file": "assets/videos/VID-20250326-WA0012.mp4",
+    "thumbnail": "assets/thumbnails/thumb-video.jpg"
+  },
+  {
+    "title": "VID 20250403 WA0040",
+    "category": "video",
+    "type": "video",
+    "file": "assets/videos/VID-20250403-WA0040.mp4",
+    "thumbnail": "assets/thumbnails/thumb-video.jpg"
+  }
+]
