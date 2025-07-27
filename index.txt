@@ -13,37 +13,56 @@
   <script src="js/pdf-thumbnail.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Inter:400,600,700&display=swap" rel="stylesheet" />
   <style>
-    html, body { height: 100%; }
+    html, body { height: 100%; margin: 0; padding: 0; }
     body {
-      margin: 0;
       font-family: 'Inter', Arial, sans-serif;
       background: #f5f7fa;
-      min-height: 100vh;
       color: #28303d;
     }
     #app {
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
+      height: 100vh;
     }
     
-    /* HEADER with burger menu */
+    /* FIXED HEADER */
     header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
       background: linear-gradient(90deg, #388e3c 0%, #43a047 100%);
       color: #fff;
       padding: 1.1rem;
       font-size: 1.2rem;
       font-weight: 600;
-      box-shadow: 0 2px 6px rgba(70,150,100,0.07);
+      box-shadow: 0 2px 6px rgba(70,150,100,0.15);
       letter-spacing: 1px;
       display: flex;
       align-items: center;
       gap: 1rem;
-      position: relative;
       z-index: 1201;
+      height: 60px;
+      box-sizing: border-box;
     }
     
-    /* Burger menu icon (only visible on mobile) */
+    /* FIXED SEARCH BAR */
+    .search-area {
+      position: fixed;
+      top: 60px;
+      left: 0;
+      right: 0;
+      background: #f5f7fa;
+      padding: 1rem;
+      border-bottom: 1px solid #e0e0e0;
+      z-index: 1200;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    /* Burger menu icon */
     .burger-icon {
       width: 26px;
       height: 20px;
@@ -58,7 +77,6 @@
       border-radius: 2px;
     }
     
-    /* Show burger only on mobile */
     @media (max-width: 799px) {
       .burger-icon {
         display: flex;
@@ -68,11 +86,13 @@
       }
     }
     
+    /* MAIN CONTENT WITH TOP MARGIN */
     main {
-      display: flex;
       flex: 1;
+      display: flex;
       overflow: hidden;
       background: #f5f7fa;
+      margin-top: 140px; /* Space for fixed header + search bar */
     }
     
     /* Desktop sidebar */
@@ -126,7 +146,7 @@
     section.content-area {
       flex: 1;
       min-width: 0;
-      padding: 0.6em 0.5em 2em 0.5em;
+      padding: 1rem 0.5em 2em 0.5em;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -200,15 +220,7 @@
       color: #2e7d32;
     }
 
-    /* Search box */
-    .search-area {
-      width: 100%;
-      margin-bottom: 2rem;
-      margin-top: 1.2rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+    /* Enhanced search styling */
     .enhanced-search {
       width: 100%;
       max-width: 410px;
@@ -264,19 +276,19 @@
       transition: background 0.16s;
     }
     .card-pdf {
-      background: #fff3e0; /* Kesari/orange */
+      background: #fff3e0;
       border-left: 5px solid #ff9800;
     }
     .card-audio {
-      background: #fff9c4; /* Yellow */
+      background: #fff9c4;
       border-left: 5px solid #fbc02d;
     }
     .card-video {
-      background: #fce4ec; /* Pink */
+      background: #fce4ec;
       border-left: 5px solid #e91e63;
     }
     .card-image {
-      background: #e3f2fd; /* Sky blue */
+      background: #e3f2fd;
       border-left: 5px solid #0288d1;
     }
     .thumbnail-container {
@@ -364,7 +376,7 @@
       top: 0; left: 0;
       width: 100vw; height: 100vh;
       background: rgba(22, 31, 46, 0.55);
-      z-index: 1200;
+      z-index: 1400;
       display: flex;
       align-items: flex-start;
       justify-content: center;
@@ -525,7 +537,7 @@
 </head>
 <body>
   <div id="app">
-    <!-- Header with burger menu -->
+    <!-- FIXED HEADER -->
     <header>
       <div class="burger-icon" @click="sideMenuOpen = true">
         <div></div>
@@ -534,6 +546,19 @@
       </div>
       Railway Crew Resource Hub
     </header>
+    
+    <!-- FIXED SEARCH BAR -->
+    <div class="search-area">
+      <form class="enhanced-search" @submit.prevent>
+        <span class="search-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="11" cy="11" r="7" stroke="#2e7d32" stroke-width="2"/>
+            <path d="M20 20L17 17" stroke="#2e7d32" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <input v-model="searchText" type="search" placeholder="Search files, descriptions, or types..." autocomplete="off" />
+      </form>
+    </div>
     
     <main>
       <!-- Desktop sidebar -->
@@ -549,19 +574,6 @@
 
       <!-- Content area -->
       <section class="content-area">
-        <!-- Search box -->
-        <div class="search-area">
-          <form class="enhanced-search" @submit.prevent>
-            <span class="search-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <circle cx="11" cy="11" r="7" stroke="#2e7d32" stroke-width="2"/>
-                <path d="M20 20L17 17" stroke="#2e7d32" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </span>
-            <input v-model="searchText" type="search" placeholder="Search files, descriptions, or types..." autocomplete="off" />
-          </form>
-        </div>
-
         <!-- Files list -->
         <div v-if="filteredFiles.length === 0" style="margin:2rem auto; text-align:center; color:#8e9ea6; font-size:1.23em;">
           No files found.
