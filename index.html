@@ -105,7 +105,7 @@ footer a:hover{text-decoration:underline}
     <div class="ring"></div>
     <div class="core"></div>
   </div>
-  <div class="hero-tag">Indian Railways · East Coast Railway</div>
+  <div class="hero-tag">Android · Railway Signal Detection</div>
   <h1>Signal<span>Guard</span></h1>
   <p>Camera-based railway signal detection for loco pilots. Real-time color recognition with automatic exposure control.</p>
   <div class="btn-row">
@@ -136,10 +136,10 @@ footer a:hover{text-decoration:underline}
 <section id="features">
   <div class="section-label">Features</div>
   <h2>Built for Real Signal Conditions</h2>
-  <p class="sub">Designed with hands-on knowledge of Indian Railway signal hardware and field conditions.</p>
+  <p class="sub">Designed for real-world signal detection conditions with HSV color analysis and auto-exposure control.</p>
   <div class="feature-grid">
     <div class="feature-card"><div class="feature-icon">🎯</div><h3>Movable Crosshair</h3><p>D-pad and touch-to-place targeting. Smallest crosshair on new touch, auto-resizes to detected signal.</p></div>
-    <div class="feature-card"><div class="feature-icon">🔴</div><h3>HSV Color Detection</h3><p>Red, green and yellow signal classification using HSV and channel-ratio analysis tuned for Indian Railways lamps.</p></div>
+    <div class="feature-card"><div class="feature-icon">🔴</div><h3>HSV Color Detection</h3><p>Red, green and yellow signal classification using HSV and channel-ratio analysis tuned for real-world signal lamps.</p></div>
     <div class="feature-card"><div class="feature-icon">📷</div><h3>Auto Exposure Scan</h3><p>Session-based EV scan finds the exposure level with the best signal-to-noise ratio and locks to it.</p></div>
     <div class="feature-card"><div class="feature-icon">🔊</div><h3>Voice Alerts</h3><p>Announces signal color, exposure changes, signal loss and re-detection using Text-to-Speech.</p></div>
     <div class="feature-card"><div class="feature-icon">🔔</div><h3>Signal Change Alarm</h3><p>Audible alarm when a watched red signal changes. Configurable alert system for safety monitoring.</p></div>
@@ -189,8 +189,7 @@ footer a:hover{text-decoration:underline}
 </section>
 
 <footer>
-  <p>SignalGuard · East Coast Railway, Khurda Road Division</p>
-  <p style="margin-top:6px">Built for loco pilots · <a href="https://electricalop.github.io">electricalop.github.io</a></p>
+  <p>SignalGuard &nbsp;·&nbsp; <a href="https://electricalop.github.io">electricalop.github.io</a></p>
 </footer>
 
 <script>
@@ -226,37 +225,33 @@ fetch("version.json?t="+Date.now())
 const NS   = "electricalop";
 const KEY  = "signalguard-apk";
 const BASE = `https://api.counterapi.dev/v1/${NS}/${KEY}`;
-const CACHE_KEY = "sg_dl_count";
 
 function setCount(n) {
   const display = n >= 1000 ? (n/1000).toFixed(1)+"k" : String(n);
   document.getElementById("hero-count").textContent = display;
   document.getElementById("box-count").textContent  = display;
-  sessionStorage.setItem(CACHE_KEY, String(n));
 }
 
-// On page load: show cached value instantly, then refresh from server
-const cached = sessionStorage.getItem(CACHE_KEY);
-if (cached !== null) {
-  // We already fetched this session — show cached, then re-read via /up trick
-  setCount(parseInt(cached, 10));
-}
-
-// Always fetch fresh count from server on load (no increment — read-only via GET)
-// counterapi GET on base URL returns current count without incrementing
-fetch(BASE)
+// Fetch fresh count from server on every page load — no caching
+fetch(BASE + "/up?amount=0")
   .then(r => r.json())
   .then(d => {
     const val = typeof d.count === "number" ? d.count
               : typeof d.value === "number" ? d.value
               : null;
     if (val !== null) setCount(val);
+    else {
+      // fallback plain GET
+      return fetch(BASE).then(r=>r.json()).then(d2=>{
+        const v2 = typeof d2.count === "number" ? d2.count
+                 : typeof d2.value === "number" ? d2.value : null;
+        if (v2 !== null) setCount(v2);
+      });
+    }
   })
   .catch(() => {
-    if (cached === null) {
-      document.getElementById("hero-count").textContent = "—";
-      document.getElementById("box-count").textContent  = "—";
-    }
+    document.getElementById("hero-count").textContent = "—";
+    document.getElementById("box-count").textContent  = "—";
   });
 
 // Increment on download click — debounced 3s to prevent double-tap
