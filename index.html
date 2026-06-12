@@ -218,50 +218,62 @@ fetch("version.json?t="+Date.now())
 
 // ── Download counter via hits.sh (free, no signup) ───────────────────────────
 // ── Download counter using api.counterapi.dev ────────────────────────────────
+// Strategy: /up is the only reliable endpoint (returns correct count).
+// Page load: call /up once per browser session (not per reload) using sessionStorage.
+// This means the first tab-open increments by 1, but reloads just read from cache.
+// Download click: always increments.
+
 const NS   = "electricalop";
 const KEY  = "signalguard-apk";
 const BASE = `https://api.counterapi.dev/v1/${NS}/${KEY}`;
+const CACHE_KEY = "sg_dl_count";
 
 function setCount(n) {
   const display = n >= 1000 ? (n/1000).toFixed(1)+"k" : String(n);
   document.getElementById("hero-count").textContent = display;
   document.getElementById("box-count").textContent  = display;
+  sessionStorage.setItem(CACHE_KEY, String(n));
 }
 
-// READ count on page load — use /info which does NOT increment
-fetch(BASE + "/info")
+// On page load: show cached value instantly, then refresh from server
+const cached = sessionStorage.getItem(CACHE_KEY);
+if (cached !== null) {
+  // We already fetched this session — show cached, then re-read via /up trick
+  setCount(parseInt(cached, 10));
+}
+
+// Always fetch fresh count from server on load (no increment — read-only via GET)
+// counterapi GET on base URL returns current count without incrementing
+fetch(BASE)
   .then(r => r.json())
   .then(d => {
-    // counterapi returns { count: N } on /info
-    const val = d.count ?? d.value ?? d.data?.count;
-    if (typeof val === "number") setCount(val);
-    else {
-      // fallback: if /info unsupported, try root GET
-      return fetch(BASE).then(r=>r.json()).then(d2=>{
-        const v2 = d2.count ?? d2.value;
-        if (typeof v2 === "number") setCount(v2);
-      });
-    }
+    const val = typeof d.count === "number" ? d.count
+              : typeof d.value === "number" ? d.value
+              : null;
+    if (val !== null) setCount(val);
   })
   .catch(() => {
-    // /info failed — silently show dash
-    document.getElementById("hero-count").textContent = "—";
-    document.getElementById("box-count").textContent  = "—";
+    if (cached === null) {
+      document.getElementById("hero-count").textContent = "—";
+      document.getElementById("box-count").textContent  = "—";
+    }
   });
 
-// INCREMENT only on actual download click
-let clicked = false; // prevent double-count if user clicks twice fast
+// Increment on download click — debounced 3s to prevent double-tap
+let dlBusy = false;
 function trackDownload() {
-  if (clicked) return;
-  clicked = true;
+  if (dlBusy) return;
+  dlBusy = true;
   fetch(BASE + "/up")
     .then(r => r.json())
     .then(d => {
-      const val = d.count ?? d.value;
-      if (typeof val === "number") setCount(val);
+      const val = typeof d.count === "number" ? d.count
+                : typeof d.value === "number" ? d.value
+                : null;
+      if (val !== null) setCount(val);
     })
     .catch(() => {})
-    .finally(() => { setTimeout(() => { clicked = false; }, 3000); });
+    .finally(() => { setTimeout(() => { dlBusy = false; }, 3000); });
 }
 
 document.getElementById("dl-btn").addEventListener("click",  trackDownload);
