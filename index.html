@@ -230,29 +230,43 @@ function setCount(n) {
   const display = n >= 1000 ? (n/1000).toFixed(1)+"k" : String(n);
   document.getElementById("hero-count").textContent = display;
   document.getElementById("box-count").textContent  = display;
+  try { localStorage.setItem("sg_count", String(n)); } catch(e){}
 }
 
-// Fetch fresh count from server on every page load — no caching
-fetch(BASE + "/up?amount=0")
+// Show last known count immediately from localStorage (no flash of —)
+try {
+  const saved = localStorage.getItem("sg_count");
+  if (saved) setCount(parseInt(saved, 10));
+} catch(e){}
+
+// Then fetch real count from server (plain GET = read only, no increment)
+fetch(BASE)
   .then(r => r.json())
   .then(d => {
     const val = typeof d.count === "number" ? d.count
-              : typeof d.value === "number" ? d.value
-              : null;
-    if (val !== null) setCount(val);
-    else {
-      // fallback plain GET
-      return fetch(BASE).then(r=>r.json()).then(d2=>{
-        const v2 = typeof d2.count === "number" ? d2.count
-                 : typeof d2.value === "number" ? d2.value : null;
-        if (v2 !== null) setCount(v2);
-      });
-    }
+              : typeof d.value === "number" ? d.value : null;
+    if (val !== null && val > 0) setCount(val);
   })
-  .catch(() => {
-    document.getElementById("hero-count").textContent = "—";
-    document.getElementById("box-count").textContent  = "—";
-  });
+  .catch(() => {});
+
+// Increment ONLY on download click
+let dlBusy = false;
+function trackDownload() {
+  if (dlBusy) return;
+  dlBusy = true;
+  fetch(BASE + "/up")
+    .then(r => r.json())
+    .then(d => {
+      const val = typeof d.count === "number" ? d.count
+                : typeof d.value === "number" ? d.value : null;
+      if (val !== null) setCount(val);
+    })
+    .catch(() => {})
+    .finally(() => { setTimeout(() => { dlBusy = false; }, 3000); });
+}
+
+document.getElementById("dl-btn").addEventListener("click",  trackDownload);
+document.getElementById("dl-btn2").addEventListener("click", trackDownload);
 
 // Increment on download click — debounced 3s to prevent double-tap
 let dlBusy = false;
