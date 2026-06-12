@@ -217,10 +217,10 @@ fetch("version.json?t="+Date.now())
   }).catch(()=>{});
 
 // ── Download counter via hits.sh (free, no signup) ───────────────────────────
-// hits.sh counts every GET to a unique URL — we use it as a counter store.
-// GET  = read count    (no increment)
-// POST = increment + read
-const HITS_URL = "https://hits.sh/electricalop-signalguard-apk-downloads.svg";
+// ── Download counter using api.counterapi.dev ────────────────────────────────
+const NS   = "electricalop";
+const KEY  = "signalguard-apk";
+const BASE = `https://api.counterapi.dev/v1/${NS}/${KEY}`;
 
 function setCount(n) {
   const display = n >= 1000 ? (n/1000).toFixed(1)+"k" : String(n);
@@ -228,27 +228,42 @@ function setCount(n) {
   document.getElementById("box-count").textContent  = display;
 }
 
-// ── Use a reliable free counter: api.counterapi.dev ──────────────────────────
-// No signup. Key auto-created on first hit.
-const NS  = "electricalop";
-const KEY = "signalguard-apk";
-const BASE = `https://api.counterapi.dev/v1/${NS}/${KEY}`;
+// READ count on page load — use /info which does NOT increment
+fetch(BASE + "/info")
+  .then(r => r.json())
+  .then(d => {
+    // counterapi returns { count: N } on /info
+    const val = d.count ?? d.value ?? d.data?.count;
+    if (typeof val === "number") setCount(val);
+    else {
+      // fallback: if /info unsupported, try root GET
+      return fetch(BASE).then(r=>r.json()).then(d2=>{
+        const v2 = d2.count ?? d2.value;
+        if (typeof v2 === "number") setCount(v2);
+      });
+    }
+  })
+  .catch(() => {
+    // /info failed — silently show dash
+    document.getElementById("hero-count").textContent = "—";
+    document.getElementById("box-count").textContent  = "—";
+  });
 
-// Fetch current count on load
-fetch(BASE)
-  .then(r=>r.json())
-  .then(d=>{ if(typeof d.count==="number") setCount(d.count); })
-  .catch(()=>{ setCount(0); });
-
-// Increment on download click
+// INCREMENT only on actual download click
+let clicked = false; // prevent double-count if user clicks twice fast
 function trackDownload() {
-  fetch(BASE+"/up")
-    .then(r=>r.json())
-    .then(d=>{ if(typeof d.count==="number") setCount(d.count); })
-    .catch(()=>{});
+  if (clicked) return;
+  clicked = true;
+  fetch(BASE + "/up")
+    .then(r => r.json())
+    .then(d => {
+      const val = d.count ?? d.value;
+      if (typeof val === "number") setCount(val);
+    })
+    .catch(() => {})
+    .finally(() => { setTimeout(() => { clicked = false; }, 3000); });
 }
 
-// Attach to both download buttons
 document.getElementById("dl-btn").addEventListener("click",  trackDownload);
 document.getElementById("dl-btn2").addEventListener("click", trackDownload);
 </script>
