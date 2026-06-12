@@ -222,7 +222,8 @@ fetch("version.json?t="+Date.now())
 // This means the first tab-open increments by 1, but reloads just read from cache.
 // Download click: always increments.
 
-const DB = "https://signalguard-f946d-default-rtdb.asia-southeast1.firebasedatabase.app/downloads.json";
+const DB_READ  = "https://signalguard-f946d-default-rtdb.asia-southeast1.firebasedatabase.app/.json";
+const DB_WRITE = "https://signalguard-f946d-default-rtdb.asia-southeast1.firebasedatabase.app/downloads.json";
 
 function setCount(n) {
   const display = n >= 1000 ? (n/1000).toFixed(1)+"k" : String(n);
@@ -230,37 +231,30 @@ function setCount(n) {
   document.getElementById("box-count").textContent  = display;
 }
 
-// Read current count on every page load — auto-init to 0 if null
-fetch(DB)
+// Read current count on every page load
+fetch(DB_READ)
   .then(r => r.json())
   .then(d => {
-    if (typeof d === "number") {
-      setCount(d);
-    } else {
-      // Database is empty (null) — initialize it to 0
-      return fetch(DB, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: "0"
-      }).then(() => setCount(0));
-    }
+    const val = d && typeof d.downloads === "number" ? d.downloads : 0;
+    setCount(val);
   })
   .catch(() => {
     document.getElementById("hero-count").textContent = "—";
     document.getElementById("box-count").textContent  = "—";
   });
 
-// Increment on download click using Firebase transaction
+// Increment on download click
 let dlBusy = false;
 function trackDownload() {
   if (dlBusy) return;
   dlBusy = true;
-  // Read current value first, then write +1
-  fetch(DB)
+  // Read current value then write +1
+  fetch(DB_READ)
     .then(r => r.json())
-    .then(current => {
-      const next = (typeof current === "number" ? current : 0) + 1;
-      return fetch(DB, {
+    .then(d => {
+      const current = d && typeof d.downloads === "number" ? d.downloads : 0;
+      const next = current + 1;
+      return fetch(DB_WRITE, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(next)
