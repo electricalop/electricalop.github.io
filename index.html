@@ -215,13 +215,7 @@ fetch("version.json?t="+Date.now())
     document.getElementById("file-info-text").textContent = 'signalguard.apk · v'+d.versionName+' · Enable "Install from unknown sources" in settings';
   }).catch(()=>{});
 
-// ── Download counter via hits.sh (free, no signup) ───────────────────────────
-// ── Download counter using api.counterapi.dev ────────────────────────────────
-// Strategy: /up is the only reliable endpoint (returns correct count).
-// Page load: call /up once per browser session (not per reload) using sessionStorage.
-// This means the first tab-open increments by 1, but reloads just read from cache.
-// Download click: always increments.
-
+// ── Download counter — Firebase Realtime Database ────────────────────────────
 const DB_READ  = "https://signalguard-f946d-default-rtdb.asia-southeast1.firebasedatabase.app/.json";
 const DB_WRITE = "https://signalguard-f946d-default-rtdb.asia-southeast1.firebasedatabase.app/downloads.json";
 
@@ -231,7 +225,7 @@ function setCount(n) {
   document.getElementById("box-count").textContent  = display;
 }
 
-// Read current count on every page load
+// Read count on every page load — no increment
 fetch(DB_READ)
   .then(r => r.json())
   .then(d => {
@@ -243,45 +237,23 @@ fetch(DB_READ)
     document.getElementById("box-count").textContent  = "—";
   });
 
-// Increment on download click
+// Increment only on download click
 let dlBusy = false;
 function trackDownload() {
   if (dlBusy) return;
   dlBusy = true;
-  // Read current value then write +1
   fetch(DB_READ)
     .then(r => r.json())
     .then(d => {
       const current = d && typeof d.downloads === "number" ? d.downloads : 0;
-      const next = current + 1;
       return fetch(DB_WRITE, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(next)
+        body: JSON.stringify(current + 1)
       });
     })
     .then(r => r.json())
     .then(val => { if (typeof val === "number") setCount(val); })
-    .catch(() => {})
-    .finally(() => { setTimeout(() => { dlBusy = false; }, 3000); });
-}
-
-document.getElementById("dl-btn").addEventListener("click",  trackDownload);
-document.getElementById("dl-btn2").addEventListener("click", trackDownload);
-
-// Increment on download click — debounced 3s to prevent double-tap
-let dlBusy = false;
-function trackDownload() {
-  if (dlBusy) return;
-  dlBusy = true;
-  fetch(BASE + "/up")
-    .then(r => r.json())
-    .then(d => {
-      const val = typeof d.count === "number" ? d.count
-                : typeof d.value === "number" ? d.value
-                : null;
-      if (val !== null) setCount(val);
-    })
     .catch(() => {})
     .finally(() => { setTimeout(() => { dlBusy = false; }, 3000); });
 }
