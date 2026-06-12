@@ -230,10 +230,21 @@ function setCount(n) {
   document.getElementById("box-count").textContent  = display;
 }
 
-// Read current count on every page load
+// Read current count on every page load — auto-init to 0 if null
 fetch(DB)
   .then(r => r.json())
-  .then(d => { if (typeof d === "number") setCount(d); else setCount(0); })
+  .then(d => {
+    if (typeof d === "number") {
+      setCount(d);
+    } else {
+      // Database is empty (null) — initialize it to 0
+      return fetch(DB, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: "0"
+      }).then(() => setCount(0));
+    }
+  })
   .catch(() => {
     document.getElementById("hero-count").textContent = "—";
     document.getElementById("box-count").textContent  = "—";
