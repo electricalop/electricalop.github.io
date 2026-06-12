@@ -1,394 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SignalGuard – Railway Signal Detector</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SignalGuard – Railway Signal Detector</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+:root{--bg:#07090f;--s1:#0e1117;--s2:#151b24;--border:#1e2733;--red:#ff3b3b;--yellow:#ffc107;--green:#00e676;--blue:#2979ff;--text:#e8edf4;--muted:#6b7a90;--r:12px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,sans-serif;line-height:1.6;overflow-x:hidden}
 
-    :root {
-      --bg:      #07090f;
-      --s1:      #0e1117;
-      --s2:      #151b24;
-      --border:  #1e2733;
-      --red:     #ff3b3b;
-      --yellow:  #ffc107;
-      --green:   #00e676;
-      --blue:    #2979ff;
-      --text:    #e8edf4;
-      --muted:   #6b7a90;
-      --r:       12px;
-    }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* HERO */
+.hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:60px 20px 80px;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% -10%,rgba(41,121,255,.18) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 20% 80%,rgba(255,59,59,.12) 0%,transparent 60%),radial-gradient(ellipse 40% 30% at 80% 80%,rgba(0,230,118,.10) 0%,transparent 60%);pointer-events:none}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', system-ui, sans-serif;
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
+/* Signal lamp */
+.signal-lamp{position:relative;width:80px;height:80px;margin:0 auto 32px}
+.signal-lamp .ring{position:absolute;inset:0;border-radius:50%;animation:pulse 2.4s ease-in-out infinite}
+.signal-lamp .ring:nth-child(1){background:rgba(255,59,59,.25);animation-delay:0s}
+.signal-lamp .ring:nth-child(2){background:rgba(255,59,59,.15);animation-delay:.3s}
+.signal-lamp .core{position:absolute;inset:18px;border-radius:50%;background:radial-gradient(circle at 38% 38%,#ff6b6b,#cc0000);box-shadow:0 0 28px 8px rgba(255,59,59,.6)}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:0}}
 
-    /* ── HERO ─────────────────────────────────────────── */
-    .hero {
-      position: relative;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 60px 20px 80px;
-      overflow: hidden;
-    }
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 60% 50% at 50% -10%, rgba(41,121,255,.18) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 30% at 20% 80%,  rgba(255,59,59,.12)  0%, transparent 60%),
-        radial-gradient(ellipse 40% 30% at 80% 80%,  rgba(0,230,118,.10)  0%, transparent 60%);
-      pointer-events: none;
-    }
+.hero-tag{display:inline-block;background:rgba(41,121,255,.15);border:1px solid rgba(41,121,255,.35);color:#70a8ff;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:4px 14px;border-radius:20px;margin-bottom:18px}
+.hero h1{font-size:clamp(2rem,8vw,3.6rem);font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-bottom:16px}
+.hero h1 span{background:linear-gradient(90deg,var(--red),var(--yellow) 50%,var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:clamp(.9rem,2.5vw,1.1rem);color:var(--muted);max-width:480px;margin:0 auto 36px}
 
-    /* Signal lamp animation */
-    .signal-lamp {
-      position: relative;
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 32px;
-    }
-    .signal-lamp .ring {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      animation: pulse 2.4s ease-in-out infinite;
-    }
-    .signal-lamp .ring:nth-child(1){ background: rgba(255,59,59,.25);  animation-delay: 0s;   }
-    .signal-lamp .ring:nth-child(2){ background: rgba(255,59,59,.15);  animation-delay: .3s;  }
-    .signal-lamp .core {
-      position: absolute;
-      inset: 18px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 38% 38%, #ff6b6b, #cc0000);
-      box-shadow: 0 0 28px 8px rgba(255,59,59,.6);
-    }
-    @keyframes pulse {
-      0%,100% { transform: scale(1);   opacity: 1; }
-      50%      { transform: scale(1.4); opacity: 0; }
-    }
+/* Buttons */
+.btn-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:13px 26px;border-radius:var(--r);font-size:.95rem;font-weight:600;text-decoration:none;cursor:pointer;border:none;transition:filter .15s,transform .12s}
+.btn:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.btn:active{transform:translateY(0);filter:brightness(.95)}
+.btn-primary{background:linear-gradient(135deg,#1a7a3c,#238636);color:#fff;box-shadow:0 4px 20px rgba(35,134,54,.35)}
+.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
 
-    .hero-tag {
-      display: inline-block;
-      background: rgba(41,121,255,.15);
-      border: 1px solid rgba(41,121,255,.35);
-      color: #70a8ff;
-      font-size: .72rem;
-      font-weight: 600;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      padding: 4px 14px;
-      border-radius: 20px;
-      margin-bottom: 18px;
-    }
-    .hero h1 {
-      font-size: clamp(2rem, 8vw, 3.6rem);
-      font-weight: 800;
-      letter-spacing: -.02em;
-      line-height: 1.1;
-      margin-bottom: 16px;
-    }
-    .hero h1 span {
-      background: linear-gradient(90deg, var(--red), var(--yellow) 50%, var(--green));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero p {
-      font-size: clamp(.9rem, 2.5vw, 1.1rem);
-      color: var(--muted);
-      max-width: 480px;
-      margin: 0 auto 36px;
-    }
+/* Counter */
+.dl-counter{display:inline-flex;align-items:center;gap:12px;background:rgba(0,230,118,.07);border:1px solid rgba(0,230,118,.2);border-radius:10px;padding:12px 22px;margin-top:20px}
+.dl-counter .count-num{font-size:1.6rem;font-weight:800;color:var(--green);min-width:48px;text-align:center;letter-spacing:-.02em}
+.dl-counter .count-label strong{display:block;color:var(--text);font-size:.85rem}
+.dl-counter .count-label span{font-size:.75rem;color:var(--muted)}
 
-    /* ── BUTTONS ──────────────────────────────────────── */
-    .btn-row {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 13px 26px;
-      border-radius: var(--r);
-      font-size: .95rem;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      border: none;
-      transition: filter .15s, transform .12s;
-    }
-    .btn:hover  { filter: brightness(1.12); transform: translateY(-1px); }
-    .btn:active { transform: translateY(0); filter: brightness(.95); }
-    .btn-primary {
-      background: linear-gradient(135deg, #1a7a3c, #238636);
-      color: #fff;
-      box-shadow: 0 4px 20px rgba(35,134,54,.35);
-    }
-    .btn-outline {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
+/* Version card */
+.version-card{margin:32px auto 0;max-width:420px;background:var(--s2);border:1px solid var(--border);border-radius:var(--r);padding:18px 22px;text-align:left;display:flex;align-items:center;gap:16px}
+.ver-dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);flex-shrink:0}
+.ver-info{flex:1}
+.ver-info strong{font-size:1rem}
+.ver-info small{color:var(--muted);font-size:.78rem;display:block;margin-top:2px}
+#ver-changelog{color:var(--muted);font-size:.8rem;margin-top:6px;line-height:1.5}
 
-    /* ── VERSION CARD ─────────────────────────────────── */
-    .version-card {
-      margin: 0 auto;
-      margin-top: 52px;
-      max-width: 420px;
-      background: var(--s2);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 18px 22px;
-      text-align: left;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .ver-dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 8px var(--green);
-      flex-shrink: 0;
-    }
-    .ver-info { flex: 1; }
-    .ver-info strong { font-size: 1rem; }
-    .ver-info small  { color: var(--muted); font-size: .78rem; display: block; margin-top: 2px; }
-    #ver-changelog   { color: var(--muted); font-size: .8rem; margin-top: 6px; line-height: 1.5; }
+/* Section */
+section{max-width:900px;margin:0 auto;padding:70px 20px}
+.section-label{text-align:center;font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:10px}
+section>h2{text-align:center;font-size:clamp(1.5rem,4vw,2.2rem);font-weight:700;margin-bottom:10px}
+section>.sub{text-align:center;color:var(--muted);max-width:500px;margin:0 auto 48px}
 
-    /* ── DOWNLOAD COUNTER ─────────────────────────────── */
-    .dl-counter {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(0,230,118,.07);
-      border: 1px solid rgba(0,230,118,.2);
-      border-radius: 10px;
-      padding: 10px 20px;
-      margin-top: 20px;
-      font-size: .9rem;
-      color: var(--muted);
-    }
-    .dl-counter .count-num {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: var(--green);
-      min-width: 40px;
-      text-align: center;
-      letter-spacing: -.02em;
-    }
-    .dl-counter .count-label {
-      line-height: 1.3;
-    }
-    .dl-counter .count-label strong {
-      display: block;
-      color: var(--text);
-      font-size: .85rem;
-    }
+/* Feature grid */
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.feature-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:24px;transition:border-color .2s,transform .2s}
+.feature-card:hover{border-color:rgba(41,121,255,.4);transform:translateY(-3px)}
+.feature-icon{font-size:1.8rem;margin-bottom:12px}
+.feature-card h3{font-size:.95rem;font-weight:600;margin-bottom:6px}
+.feature-card p{font-size:.82rem;color:var(--muted)}
 
-    /* ── SECTION WRAPPER ─────────────────────────────── */
-    section {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 70px 20px;
-    }
-    .section-label {
-      text-align: center;
-      font-size: .72rem;
-      font-weight: 600;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--blue);
-      margin-bottom: 10px;
-    }
-    section > h2 {
-      text-align: center;
-      font-size: clamp(1.5rem, 4vw, 2.2rem);
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-    section > .sub {
-      text-align: center;
-      color: var(--muted);
-      max-width: 500px;
-      margin: 0 auto 48px;
-    }
+/* Divider */
+.divider{border:none;border-top:1px solid var(--border);margin:0 20px}
 
-    /* ── FEATURE GRID ─────────────────────────────────── */
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-    }
-    .feature-card {
-      background: var(--s1);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 24px;
-      transition: border-color .2s, transform .2s;
-    }
-    .feature-card:hover {
-      border-color: rgba(41,121,255,.4);
-      transform: translateY(-3px);
-    }
-    .feature-icon {
-      font-size: 1.8rem;
-      margin-bottom: 12px;
-    }
-    .feature-card h3 { font-size: .95rem; font-weight: 600; margin-bottom: 6px; }
-    .feature-card p  { font-size: .82rem; color: var(--muted); }
+/* History table */
+.history-wrap{overflow-x:auto;border-radius:var(--r);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+thead tr{background:var(--s2);border-bottom:1px solid var(--border)}
+th{padding:11px 18px;text-align:left;font-weight:600;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.06em}
+td{padding:12px 18px;border-bottom:1px solid #111820;vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.02)}
+.tag-latest{display:inline-block;background:rgba(0,230,118,.12);border:1px solid rgba(0,230,118,.3);color:var(--green);font-size:.7rem;font-weight:600;padding:2px 9px;border-radius:12px;margin-left:8px;vertical-align:middle}
+.code-tag{font-family:monospace;background:rgba(41,121,255,.12);color:#70a8ff;padding:2px 8px;border-radius:5px;font-size:.8rem}
+.note{color:var(--muted)}
 
-    /* ── DIVIDER ─────────────────────────────────────── */
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 0 20px;
-    }
+/* Download box */
+.download-box{background:linear-gradient(135deg,#0e1b2e,#0e2418);border:1px solid #1e3a28;border-radius:16px;padding:40px 32px;text-align:center}
+.download-box h2{font-size:1.6rem;font-weight:700;margin-bottom:10px}
+.download-box>p{color:var(--muted);margin-bottom:28px}
+.file-info{display:inline-flex;align-items:center;gap:8px;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;padding:8px 16px;font-size:.8rem;color:var(--muted);margin-top:16px}
 
-    /* ── VERSION HISTORY TABLE ───────────────────────── */
-    .history-wrap {
-      overflow-x: auto;
-      border-radius: var(--r);
-      border: 1px solid var(--border);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: .85rem;
-    }
-    thead tr {
-      background: var(--s2);
-      border-bottom: 1px solid var(--border);
-    }
-    th {
-      padding: 11px 18px;
-      text-align: left;
-      font-weight: 600;
-      color: var(--muted);
-      font-size: .75rem;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-    }
-    td {
-      padding: 12px 18px;
-      border-bottom: 1px solid #111820;
-      vertical-align: top;
-    }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: rgba(255,255,255,.02); }
-    .tag-latest {
-      display: inline-block;
-      background: rgba(0,230,118,.12);
-      border: 1px solid rgba(0,230,118,.3);
-      color: var(--green);
-      font-size: .7rem;
-      font-weight: 600;
-      padding: 2px 9px;
-      border-radius: 12px;
-      margin-left: 8px;
-      vertical-align: middle;
-    }
-    .code-tag {
-      font-family: monospace;
-      background: rgba(41,121,255,.12);
-      color: #70a8ff;
-      padding: 2px 8px;
-      border-radius: 5px;
-      font-size: .8rem;
-    }
-    td .note { color: var(--muted); }
+/* Footer */
+footer{border-top:1px solid var(--border);text-align:center;padding:32px 20px;font-size:.78rem;color:var(--muted)}
+footer a{color:#70a8ff;text-decoration:none}
+footer a:hover{text-decoration:underline}
 
-    /* ── DOWNLOAD SECTION ────────────────────────────── */
-    .download-box {
-      background: linear-gradient(135deg, #0e1b2e, #0e2418);
-      border: 1px solid #1e3a28;
-      border-radius: 16px;
-      padding: 40px 32px;
-      text-align: center;
-    }
-    .download-box h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 10px; }
-    .download-box p  { color: var(--muted); margin-bottom: 28px; }
-    .file-info {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(0,0,0,.3);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 16px;
-      font-size: .8rem;
-      color: var(--muted);
-      margin-top: 16px;
-    }
-
-    /* ── FOOTER ──────────────────────────────────────── */
-    footer {
-      border-top: 1px solid var(--border);
-      text-align: center;
-      padding: 32px 20px;
-      font-size: .78rem;
-      color: var(--muted);
-    }
-    footer a { color: #70a8ff; text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
-  </style>
+/* Mobile */
+@media(max-width:480px){
+  .btn{padding:11px 18px;font-size:.88rem}
+  .download-box{padding:28px 18px}
+  .dl-counter{padding:10px 16px}
+}
+</style>
 </head>
 <body>
 
-<!-- ── HERO ──────────────────────────────────────────────────────────── -->
 <div class="hero">
   <div class="signal-lamp">
     <div class="ring"></div>
     <div class="ring"></div>
     <div class="core"></div>
   </div>
-
   <div class="hero-tag">Indian Railways · East Coast Railway</div>
-
   <h1>Signal<span>Guard</span></h1>
-
-  <p>Camera-based railway signal detection for loco pilots.
-     Real-time color recognition with automatic exposure control.</p>
-
+  <p>Camera-based railway signal detection for loco pilots. Real-time color recognition with automatic exposure control.</p>
   <div class="btn-row">
-    <a id="dl-btn" class="btn btn-primary" href="signalguard.apk" download onclick="trackDownload()">
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-        <polyline points="7 10 12 15 17 10"/>
-        <line x1="12" y1="15" x2="12" y2="3"/>
-      </svg>
+    <a id="dl-btn" class="btn btn-primary" href="signalguard.apk" download>
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Download APK
     </a>
     <a class="btn btn-outline" href="#features">Learn More</a>
   </div>
-
-  <!-- Download Counter -->
   <div class="dl-counter">
-    <div class="count-num" id="hero-count">—</div>
+    <div class="count-num" id="hero-count">…</div>
     <div class="count-label">
       <strong>Total Downloads</strong>
-      across all versions
+      <span>across all versions</span>
     </div>
   </div>
-
-  <!-- Live version card -->
   <div class="version-card">
     <div class="ver-dot"></div>
     <div class="ver-info">
@@ -399,673 +132,125 @@
   </div>
 </div>
 
-<!-- ── FEATURES ─────────────────────────────────────────────────────── -->
 <hr class="divider"/>
 <section id="features">
   <div class="section-label">Features</div>
   <h2>Built for Real Signal Conditions</h2>
   <p class="sub">Designed with hands-on knowledge of Indian Railway signal hardware and field conditions.</p>
-
   <div class="feature-grid">
-    <div class="feature-card">
-      <div class="feature-icon">🎯</div>
-      <h3>Movable Crosshair</h3>
-      <p>D-pad and touch-to-place targeting. Smallest crosshair on new touch, auto-resizes to detected signal.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔴</div>
-      <h3>HSV Color Detection</h3>
-      <p>Red, green and yellow signal classification using HSV and channel-ratio analysis tuned for Indian Railways lamps.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">📷</div>
-      <h3>Auto Exposure Scan</h3>
-      <p>Session-based EV scan finds the exposure level with the best signal-to-noise ratio and locks to it.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔊</div>
-      <h3>Voice Alerts</h3>
-      <p>Announces signal color, exposure changes, signal loss and re-detection using Text-to-Speech.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔔</div>
-      <h3>Signal Change Alarm</h3>
-      <p>Audible alarm when a watched red signal changes. Configurable alert system for safety monitoring.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🌙</div>
-      <h3>Screen Dimming</h3>
-      <p>Auto-dims display to save battery on long runs. Instant restore on touch. Pauses during help screens.</p>
-    </div>
+    <div class="feature-card"><div class="feature-icon">🎯</div><h3>Movable Crosshair</h3><p>D-pad and touch-to-place targeting. Smallest crosshair on new touch, auto-resizes to detected signal.</p></div>
+    <div class="feature-card"><div class="feature-icon">🔴</div><h3>HSV Color Detection</h3><p>Red, green and yellow signal classification using HSV and channel-ratio analysis tuned for Indian Railways lamps.</p></div>
+    <div class="feature-card"><div class="feature-icon">📷</div><h3>Auto Exposure Scan</h3><p>Session-based EV scan finds the exposure level with the best signal-to-noise ratio and locks to it.</p></div>
+    <div class="feature-card"><div class="feature-icon">🔊</div><h3>Voice Alerts</h3><p>Announces signal color, exposure changes, signal loss and re-detection using Text-to-Speech.</p></div>
+    <div class="feature-card"><div class="feature-icon">🔔</div><h3>Signal Change Alarm</h3><p>Audible alarm when a watched red signal changes. Configurable alert system for safety monitoring.</p></div>
+    <div class="feature-card"><div class="feature-icon">🌙</div><h3>Screen Dimming</h3><p>Auto-dims display to save battery on long runs. Instant restore on touch. Pauses during help screens.</p></div>
   </div>
 </section>
 
-<!-- ── VERSION HISTORY ───────────────────────────────────────────────── -->
 <hr class="divider"/>
 <section id="changelog">
   <div class="section-label">Changelog</div>
   <h2>Version History</h2>
   <p class="sub">All releases, newest first.</p>
-
   <div class="history-wrap">
     <table>
-      <thead>
-        <tr>
-          <th>Version</th>
-          <th>Code</th>
-          <th>Date</th>
-          <th>Changes</th>
-        </tr>
-      </thead>
+      <thead><tr><th>Version</th><th>Code</th><th>Date</th><th>Changes</th></tr></thead>
       <tbody id="history-body"></tbody>
     </table>
   </div>
 </section>
 
-<!-- ── DOWNLOAD ──────────────────────────────────────────────────────── -->
 <hr class="divider"/>
 <section id="download">
   <div class="download-box">
     <h2>
-      <svg style="vertical-align:middle;margin-right:8px" width="22" height="22"
-           viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2.2" stroke-linecap="round">
-        <rect x="5" y="2" width="14" height="20" rx="2"/>
-        <line x1="12" y1="18" x2="12" y2="18.01"/>
-      </svg>
+      <svg style="vertical-align:middle;margin-right:8px" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg>
       Android APK Download
     </h2>
     <p>Direct install · No Play Store required · Android 5.0+</p>
     <div class="btn-row">
-      <a id="dl-btn2" class="btn btn-primary" href="signalguard.apk" download onclick="trackDownload()">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
+      <a id="dl-btn2" class="btn btn-primary" href="signalguard.apk" download>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download SignalGuard APK
       </a>
     </div>
     <div class="file-info">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       <span id="file-info-text">signalguard.apk · Enable "Install from unknown sources" in settings</span>
     </div>
-
-    <!-- Download counter in download section too -->
-    <div class="dl-counter" style="margin-top:24px;justify-content:center;">
-      <div class="count-num" id="box-count">—</div>
+    <div class="dl-counter" style="margin-top:24px;justify-content:center">
+      <div class="count-num" id="box-count">…</div>
       <div class="count-label">
         <strong>Total Downloads</strong>
-        across all versions
+        <span>across all versions</span>
       </div>
     </div>
   </div>
 </section>
 
 <footer>
-  <p>SignalGuard &nbsp;·&nbsp; East Coast Railway, Khurda Road Division</p>
-  <p style="margin-top:6px">
-    Built for loco pilots &nbsp;·&nbsp;
-    <a href="https://electricalop.github.io">electricalop.github.io</a>
-  </p>
+  <p>SignalGuard · East Coast Railway, Khurda Road Division</p>
+  <p style="margin-top:6px">Built for loco pilots · <a href="https://electricalop.github.io">electricalop.github.io</a></p>
 </footer>
 
 <script>
-  // ── CountAPI namespace — unique to your site ─────────────────────────────
-  // Uses: https://api.countapi.xyz  (free, no signup)
-  // Namespace: electricalop-signalguard  |  Key: apk-downloads
-  const COUNT_NS  = "electricalop-signalguard";
-  const COUNT_KEY = "apk-downloads";
-  const COUNT_URL = `https://api.countapi.xyz/get/${COUNT_NS}/${COUNT_KEY}`;
-  const COUNT_HIT = `https://api.countapi.xyz/hit/${COUNT_NS}/${COUNT_KEY}`;
+// ── Version history ──────────────────────────────────────────────────────────
+const HISTORY = [
+  { version:"1.0", code:1, date:"Jun 2025", notes:"Initial release. Camera-based signal detection, auto-exposure scan, voice alerts, screen dimming.", latest:true }
+];
 
-  // ── Show count in both places ────────────────────────────────────────────
-  function setCount(n) {
-    const display = n >= 1000
-      ? (n / 1000).toFixed(1) + "k"
-      : String(n);
-    document.getElementById("hero-count").textContent = display;
-    document.getElementById("box-count").textContent  = display;
-  }
+const tbody = document.getElementById("history-body");
+HISTORY.forEach(h => {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<td><strong>v${h.version}</strong>${h.latest?'<span class="tag-latest">Latest</span>':''}</td><td><span class="code-tag">${h.code}</span></td><td style="white-space:nowrap" class="note">${h.date}</td><td class="note">${h.notes}</td>`;
+  tbody.appendChild(tr);
+});
 
-  // ── Fetch current count on page load ────────────────────────────────────
-  fetch(COUNT_URL)
-    .then(r => r.json())
-    .then(d => { if (typeof d.value === "number") setCount(d.value); })
-    .catch(() => { /* silently ignore — counter shows — */ });
+// ── version.json ─────────────────────────────────────────────────────────────
+fetch("version.json?t="+Date.now())
+  .then(r=>r.json())
+  .then(d=>{
+    document.getElementById("ver-name").textContent = "SignalGuard v"+d.versionName;
+    document.getElementById("ver-sub").textContent  = "versionCode "+d.versionCode+" · Latest release";
+    document.getElementById("ver-changelog").textContent = d.changelog;
+    document.getElementById("file-info-text").textContent = 'signalguard.apk · v'+d.versionName+' · Enable "Install from unknown sources" in settings';
+  }).catch(()=>{});
 
-  // ── Increment counter on download click ─────────────────────────────────
-  function trackDownload() {
-    fetch(COUNT_HIT)
-      .then(r => r.json())
-      .then(d => { if (typeof d.value === "number") setCount(d.value); })
-      .catch(() => {});
-  }
+// ── Download counter via hits.sh (free, no signup) ───────────────────────────
+// hits.sh counts every GET to a unique URL — we use it as a counter store.
+// GET  = read count    (no increment)
+// POST = increment + read
+const HITS_URL = "https://hits.sh/electricalop-signalguard-apk-downloads.svg";
 
-  // ── Version history — ADD A ROW HERE EVERY RELEASE ──────────────────────
-  const HISTORY = [
-    {
-      version:  "1.0",
-      code:     1,
-      date:     "Jun 2025",
-      notes:    "Initial release. Camera-based signal detection, auto-exposure scan, voice alerts, screen dimming.",
-      latest:   true
-    },
-  ];
+function setCount(n) {
+  const display = n >= 1000 ? (n/1000).toFixed(1)+"k" : String(n);
+  document.getElementById("hero-count").textContent = display;
+  document.getElementById("box-count").textContent  = display;
+}
 
-  // ── Populate history table ───────────────────────────────────────────────
-  const tbody = document.getElementById("history-body");
-  HISTORY.forEach(h => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>
-        <strong>v${h.version}</strong>
-        ${h.latest ? '<span class="tag-latest">Latest</span>' : ''}
-      </td>
-      <td><span class="code-tag">${h.code}</span></td>
-      <td style="white-space:nowrap;color:var(--muted)">${h.date}</td>
-      <td class="note">${h.notes}</td>`;
-    tbody.appendChild(tr);
-  });
+// ── Use a reliable free counter: api.counterapi.dev ──────────────────────────
+// No signup. Key auto-created on first hit.
+const NS  = "electricalop";
+const KEY = "signalguard-apk";
+const BASE = `https://api.counterapi.dev/v1/${NS}/${KEY}`;
 
-  // ── Fetch live version.json and update hero card ─────────────────────────
-  fetch("version.json?t=" + Date.now())
-    .then(r => r.json())
-    .then(d => {
-      document.getElementById("ver-name").textContent =
-        "SignalGuard v" + d.versionName;
-      document.getElementById("ver-sub").textContent =
-        "versionCode " + d.versionCode + " · Latest release";
-      document.getElementById("ver-changelog").textContent = d.changelog;
-      document.getElementById("file-info-text").textContent =
-        "signalguard.apk · v" + d.versionName +
-        ' · Enable "Install from unknown sources" in settings';
-    })
-    .catch(() => { /* silently keep hardcoded values */ });
-</script>
-</body>
-</html>      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 60px 20px 80px;
-      overflow: hidden;
-    }
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 60% 50% at 50% -10%, rgba(41,121,255,.18) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 30% at 20% 80%,  rgba(255,59,59,.12)  0%, transparent 60%),
-        radial-gradient(ellipse 40% 30% at 80% 80%,  rgba(0,230,118,.10)  0%, transparent 60%);
-      pointer-events: none;
-    }
+// Fetch current count on load
+fetch(BASE)
+  .then(r=>r.json())
+  .then(d=>{ if(typeof d.count==="number") setCount(d.count); })
+  .catch(()=>{ setCount(0); });
 
-    /* Signal lamp animation */
-    .signal-lamp {
-      position: relative;
-      width: 80px;
-      height: 80px;
-      margin: 0 auto 32px;
-    }
-    .signal-lamp .ring {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      animation: pulse 2.4s ease-in-out infinite;
-    }
-    .signal-lamp .ring:nth-child(1){ background: rgba(255,59,59,.25);  animation-delay: 0s;   }
-    .signal-lamp .ring:nth-child(2){ background: rgba(255,59,59,.15);  animation-delay: .3s;  }
-    .signal-lamp .core {
-      position: absolute;
-      inset: 18px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 38% 38%, #ff6b6b, #cc0000);
-      box-shadow: 0 0 28px 8px rgba(255,59,59,.6);
-    }
-    @keyframes pulse {
-      0%,100% { transform: scale(1);   opacity: 1; }
-      50%      { transform: scale(1.4); opacity: 0; }
-    }
+// Increment on download click
+function trackDownload() {
+  fetch(BASE+"/up")
+    .then(r=>r.json())
+    .then(d=>{ if(typeof d.count==="number") setCount(d.count); })
+    .catch(()=>{});
+}
 
-    .hero-tag {
-      display: inline-block;
-      background: rgba(41,121,255,.15);
-      border: 1px solid rgba(41,121,255,.35);
-      color: #70a8ff;
-      font-size: .72rem;
-      font-weight: 600;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      padding: 4px 14px;
-      border-radius: 20px;
-      margin-bottom: 18px;
-    }
-    .hero h1 {
-      font-size: clamp(2rem, 8vw, 3.6rem);
-      font-weight: 800;
-      letter-spacing: -.02em;
-      line-height: 1.1;
-      margin-bottom: 16px;
-    }
-    .hero h1 span {
-      background: linear-gradient(90deg, var(--red), var(--yellow) 50%, var(--green));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .hero p {
-      font-size: clamp(.9rem, 2.5vw, 1.1rem);
-      color: var(--muted);
-      max-width: 480px;
-      margin: 0 auto 36px;
-    }
-
-    /* ── BUTTONS ──────────────────────────────────────── */
-    .btn-row {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 13px 26px;
-      border-radius: var(--r);
-      font-size: .95rem;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      border: none;
-      transition: filter .15s, transform .12s;
-    }
-    .btn:hover  { filter: brightness(1.12); transform: translateY(-1px); }
-    .btn:active { transform: translateY(0); filter: brightness(.95); }
-    .btn-primary {
-      background: linear-gradient(135deg, #1a7a3c, #238636);
-      color: #fff;
-      box-shadow: 0 4px 20px rgba(35,134,54,.35);
-    }
-    .btn-outline {
-      background: transparent;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    /* ── VERSION CARD ─────────────────────────────────── */
-    .version-card {
-      margin: 0 auto;
-      margin-top: 52px;
-      max-width: 420px;
-      background: var(--s2);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 18px 22px;
-      text-align: left;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-    .ver-dot {
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 8px var(--green);
-      flex-shrink: 0;
-    }
-    .ver-info { flex: 1; }
-    .ver-info strong { font-size: 1rem; }
-    .ver-info small  { color: var(--muted); font-size: .78rem; display: block; margin-top: 2px; }
-    #ver-changelog   { color: var(--muted); font-size: .8rem; margin-top: 6px; line-height: 1.5; }
-
-    /* ── SECTION WRAPPER ─────────────────────────────── */
-    section {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 70px 20px;
-    }
-    .section-label {
-      text-align: center;
-      font-size: .72rem;
-      font-weight: 600;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: var(--blue);
-      margin-bottom: 10px;
-    }
-    section > h2 {
-      text-align: center;
-      font-size: clamp(1.5rem, 4vw, 2.2rem);
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-    section > .sub {
-      text-align: center;
-      color: var(--muted);
-      max-width: 500px;
-      margin: 0 auto 48px;
-    }
-
-    /* ── FEATURE GRID ─────────────────────────────────── */
-    .feature-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-    }
-    .feature-card {
-      background: var(--s1);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 24px;
-      transition: border-color .2s, transform .2s;
-    }
-    .feature-card:hover {
-      border-color: rgba(41,121,255,.4);
-      transform: translateY(-3px);
-    }
-    .feature-icon {
-      font-size: 1.8rem;
-      margin-bottom: 12px;
-    }
-    .feature-card h3 { font-size: .95rem; font-weight: 600; margin-bottom: 6px; }
-    .feature-card p  { font-size: .82rem; color: var(--muted); }
-
-    /* ── DIVIDER ─────────────────────────────────────── */
-    .divider {
-      border: none;
-      border-top: 1px solid var(--border);
-      margin: 0 20px;
-    }
-
-    /* ── VERSION HISTORY TABLE ───────────────────────── */
-    .history-wrap {
-      overflow-x: auto;
-      border-radius: var(--r);
-      border: 1px solid var(--border);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: .85rem;
-    }
-    thead tr {
-      background: var(--s2);
-      border-bottom: 1px solid var(--border);
-    }
-    th {
-      padding: 11px 18px;
-      text-align: left;
-      font-weight: 600;
-      color: var(--muted);
-      font-size: .75rem;
-      text-transform: uppercase;
-      letter-spacing: .06em;
-    }
-    td {
-      padding: 12px 18px;
-      border-bottom: 1px solid #111820;
-      vertical-align: top;
-    }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: rgba(255,255,255,.02); }
-    .tag-latest {
-      display: inline-block;
-      background: rgba(0,230,118,.12);
-      border: 1px solid rgba(0,230,118,.3);
-      color: var(--green);
-      font-size: .7rem;
-      font-weight: 600;
-      padding: 2px 9px;
-      border-radius: 12px;
-      margin-left: 8px;
-      vertical-align: middle;
-    }
-    .code-tag {
-      font-family: monospace;
-      background: rgba(41,121,255,.12);
-      color: #70a8ff;
-      padding: 2px 8px;
-      border-radius: 5px;
-      font-size: .8rem;
-    }
-    td .note { color: var(--muted); }
-
-    /* ── DOWNLOAD SECTION ────────────────────────────── */
-    .download-box {
-      background: linear-gradient(135deg, #0e1b2e, #0e2418);
-      border: 1px solid #1e3a28;
-      border-radius: 16px;
-      padding: 40px 32px;
-      text-align: center;
-    }
-    .download-box h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 10px; }
-    .download-box p  { color: var(--muted); margin-bottom: 28px; }
-    .file-info {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(0,0,0,.3);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 16px;
-      font-size: .8rem;
-      color: var(--muted);
-      margin-top: 16px;
-    }
-
-    /* ── FOOTER ──────────────────────────────────────── */
-    footer {
-      border-top: 1px solid var(--border);
-      text-align: center;
-      padding: 32px 20px;
-      font-size: .78rem;
-      color: var(--muted);
-    }
-    footer a { color: #70a8ff; text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
-  </style>
-</head>
-<body>
-
-<!-- ── HERO ──────────────────────────────────────────────────────────── -->
-<div class="hero">
-  <div class="signal-lamp">
-    <div class="ring"></div>
-    <div class="ring"></div>
-    <div class="core"></div>
-  </div>
-
-  <div class="hero-tag">Indian Railways · East Coast Railway</div>
-
-  <h1>Signal<span>Guard</span></h1>
-
-  <p>Camera-based railway signal detection for loco pilots.
-     Real-time color recognition with automatic exposure control.</p>
-
-  <div class="btn-row">
-    <a id="dl-btn" class="btn btn-primary" href="signalguard.apk" download>
-      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-        <polyline points="7 10 12 15 17 10"/>
-        <line x1="12" y1="15" x2="12" y2="3"/>
-      </svg>
-      Download APK
-    </a>
-    <a class="btn btn-outline" href="#features">Learn More</a>
-  </div>
-
-  <!-- Live version card -->
-  <div class="version-card">
-    <div class="ver-dot"></div>
-    <div class="ver-info">
-      <strong id="ver-name">SignalGuard v1.0</strong>
-      <small id="ver-sub">versionCode 1 · Latest release</small>
-      <div id="ver-changelog">Initial release of SignalGuard.</div>
-    </div>
-  </div>
-</div>
-
-<!-- ── FEATURES ─────────────────────────────────────────────────────── -->
-<hr class="divider"/>
-<section id="features">
-  <div class="section-label">Features</div>
-  <h2>Built for Real Signal Conditions</h2>
-  <p class="sub">Designed with hands-on knowledge of Indian Railway signal hardware and field conditions.</p>
-
-  <div class="feature-grid">
-    <div class="feature-card">
-      <div class="feature-icon">🎯</div>
-      <h3>Movable Crosshair</h3>
-      <p>D-pad and touch-to-place targeting. Smallest crosshair on new touch, auto-resizes to detected signal.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔴</div>
-      <h3>HSV Color Detection</h3>
-      <p>Red, green and yellow signal classification using HSV and channel-ratio analysis tuned for Indian Railways lamps.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">📷</div>
-      <h3>Auto Exposure Scan</h3>
-      <p>Session-based EV scan finds the exposure level with the best signal-to-noise ratio and locks to it.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔊</div>
-      <h3>Voice Alerts</h3>
-      <p>Announces signal color, exposure changes, signal loss and re-detection using Text-to-Speech.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🔔</div>
-      <h3>Signal Change Alarm</h3>
-      <p>Audible alarm when a watched red signal changes. Configurable alert system for safety monitoring.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">🌙</div>
-      <h3>Screen Dimming</h3>
-      <p>Auto-dims display to save battery on long runs. Instant restore on touch. Pauses during help screens.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ── VERSION HISTORY ───────────────────────────────────────────────── -->
-<hr class="divider"/>
-<section id="changelog">
-  <div class="section-label">Changelog</div>
-  <h2>Version History</h2>
-  <p class="sub">All releases, newest first.</p>
-
-  <div class="history-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Version</th>
-          <th>Code</th>
-          <th>Date</th>
-          <th>Changes</th>
-        </tr>
-      </thead>
-      <tbody id="history-body"></tbody>
-    </table>
-  </div>
-</section>
-
-<!-- ── DOWNLOAD ──────────────────────────────────────────────────────── -->
-<hr class="divider"/>
-<section id="download">
-  <div class="download-box">
-    <h2>
-      <svg style="vertical-align:middle;margin-right:8px" width="22" height="22"
-           viewBox="0 0 24 24" fill="none" stroke="currentColor"
-           stroke-width="2.2" stroke-linecap="round">
-        <rect x="5" y="2" width="14" height="20" rx="2"/>
-        <line x1="12" y1="18" x2="12" y2="18.01"/>
-      </svg>
-      Android APK Download
-    </h2>
-    <p>Direct install · No Play Store required · Android 5.0+</p>
-    <div class="btn-row">
-      <a id="dl-btn2" class="btn btn-primary" href="signalguard.apk" download>
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2.3" stroke-linecap="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-          <polyline points="7 10 12 15 17 10"/>
-          <line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        Download SignalGuard APK
-      </a>
-    </div>
-    <div class="file-info">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2" stroke-linecap="round">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      <span id="file-info-text">signalguard.apk · Enable "Install from unknown sources" in settings</span>
-    </div>
-  </div>
-</section>
-
-<footer>
-  <p>SignalGuard &nbsp;·&nbsp; East Coast Railway, Khurda Road Division</p>
-  <p style="margin-top:6px">
-    Built for loco pilots &nbsp;·&nbsp;
-    <a href="https://electricalop.github.io">electricalop.github.io</a>
-  </p>
-</footer>
-
-<script>
-  // ── Version history — ADD A ROW HERE EVERY RELEASE ──────────────────────
-  // Keep newest first. versionCode must match version.json exactly.
-  const HISTORY = [
-    {
-      version:  "1.0",
-      code:     1,
-      date:     "Jun 2025",
-      notes:    "Initial release. Camera-based signal detection, auto-exposure scan, voice alerts, screen dimming.",
-      latest:   true
-    },
-  ];
-
-  // ── Populate history table ───────────────────────────────────────────────
-  const tbody = document.getElementById("history-body");
-  HISTORY.forEach(h => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>
-        <strong>v${h.version}</strong>
-        ${h.latest ? '<span class="tag-latest">Latest</span>' : ''}
-      </td>
-      <td><span class="code-tag">${h.code}</span></td>
-      <td style="white-space:nowrap;color:var(--muted)">${h.date}</td>
-      <td class="note">${h.notes}</td>`;
-    tbody.appendChild(tr);
-  });
-
-  // ── Fetch live version.json and update hero card ─────────────────────────
-  fetch("version.json?t=" + Date.now())
-    .then(r => r.json())
-    .then(d => {
-      document.getElementById("ver-name").textContent =
-        "SignalGuard v" + d.versionName;
-      document.getElementById("ver-sub").textContent =
-        "versionCode " + d.versionCode + " · Latest release";
-      document.getElementById("ver-changelog").textContent = d.changelog;
-      document.getElementById("file-info-text").textContent =
-        "signalguard.apk · v" + d.versionName +
-        " · Enable \"Install from unknown sources\" in settings";
-    })
-    .catch(() => { /* silently keep hardcoded values */ });
+// Attach to both download buttons
+document.getElementById("dl-btn").addEventListener("click",  trackDownload);
+document.getElementById("dl-btn2").addEventListener("click", trackDownload);
 </script>
 </body>
 </html>
